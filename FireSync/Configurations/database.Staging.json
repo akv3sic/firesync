@@ -1,0 +1,6 @@
+{
+  "UseInMemoryDatabase": false,
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5408;Database=firesync;Username=kvesic;Password=kvesic"
+  }
+}

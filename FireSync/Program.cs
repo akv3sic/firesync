@@ -10,6 +10,9 @@ namespace FireSync
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            
+            // Add custom configuration
+            builder.Configuration.AddCustomConfiguration(builder.Environment);
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
