@@ -1,0 +1,37 @@
+﻿@attribute [StreamRendering]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.Extensions.Localization
+@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="top-row px-4">
+            <MudMenu>
+                <ActivatorContent>
+                    <MudAvatar Color="Color.Primary" Size="Size.Medium">@initials</MudAvatar>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem>
+                        <a href="Account/Manage">Moj račun</a>
+                    </MudMenuItem>
+
+                    <form action="Account/Logout" method="post">
+                        <AntiforgeryToken />
+                        <button type="submit" class="transparent-button">
+                            <MudMenuItem>Odjava</MudMenuItem>
+                        </button>
+                    </form>
+                </ChildContent>
+            </MudMenu>
+</div>
+
+@code {
+    private string initials = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // mock user initials
+        initials = "AB";
+    }
+}

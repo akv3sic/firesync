@@ -1,5 +1,6 @@
 using FireSync.Client.Pages;
 using FireSync.Components;
+using MudBlazor.Services;
 
 namespace FireSync
 {
@@ -13,6 +14,9 @@ namespace FireSync
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents()
                 .AddInteractiveWebAssemblyComponents();
+
+            // Add MudBlazor
+            builder.Services.AddMudServices();
 
             var app = builder.Build();
 

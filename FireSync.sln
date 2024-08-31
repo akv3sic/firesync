@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireSync", "FireSync\FireSync.csproj", "{1F68BD7C-DA99-4451-BDAE-71C58BDEA0EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireSync", "FireSync\FireSync.csproj", "{1F68BD7C-DA99-4451-BDAE-71C58BDEA0EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireSync.Client", "FireSync.Client\FireSync.Client.csproj", "{9A243181-8E51-40FD-ACAE-E381A36F7C26}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FireSync.Client", "FireSync.Client\FireSync.Client.csproj", "{9A243181-8E51-40FD-ACAE-E381A36F7C26}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
