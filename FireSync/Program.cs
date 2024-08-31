@@ -1,6 +1,7 @@
 using FireSync.Client.Pages;
 using FireSync.Components;
 using MudBlazor.Services;
+using System.Net;
 
 namespace FireSync
 {
@@ -33,6 +34,17 @@ namespace FireSync
             }
 
             app.UseHttpsRedirection();
+            app.UseStatusCodePages(context =>
+            {
+                var response = context.HttpContext.Response;
+
+                if (response.StatusCode == (int)HttpStatusCode.NotFound)
+                {
+                    response.Redirect("/404");
+                }
+
+                return Task.CompletedTask;
+            });
 
             app.UseStaticFiles();
             app.UseAntiforgery();
