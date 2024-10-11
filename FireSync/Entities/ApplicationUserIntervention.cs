@@ -1,7 +1,5 @@
-﻿using FireSync.Entities.Common;
-using FireSync.Models;
+﻿using FireSync.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace FireSync.Entities
 {

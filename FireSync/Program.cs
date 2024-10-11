@@ -97,7 +97,7 @@ namespace FireSync
 
                 if (app.Environment.IsDevelopment())
                 {
-                    await TestDataSeeder.SeedTestUsers(userManager);
+                    await TestDataSeeder.SeedData(dbContext, userManager);
                 }
             }
 

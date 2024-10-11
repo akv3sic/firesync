@@ -1,4 +1,5 @@
-﻿using FireSync.Enums;
+﻿using FireSync.Entities;
+using FireSync.Enums;
 using FireSync.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -7,11 +8,18 @@ namespace FireSync.Data.Seeders
     public static class TestDataSeeder
     {
         /// <summary>
-        /// Seeds test users for demo or development instances.
+        /// Seeds test data into the database.
         /// </summary>
+        /// <param name="dbContext">The application database context.</param>
         /// <param name="userManager">The user manager.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public static async Task SeedTestUsers(UserManager<ApplicationUser> userManager)
+        public static async Task SeedData(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
+        {
+            await SeedTestUsers(userManager);
+            await SeedTestInterventions(dbContext, userManager);
+        }
+
+        private static async Task SeedTestUsers(UserManager<ApplicationUser> userManager)
         {
             // Firefighter 1 (also Admin)
             var firefighterAdmin = new ApplicationUser
@@ -102,6 +110,45 @@ namespace FireSync.Data.Seeders
                     await userManager.AddToRoleAsync(accountant, Roles.Accountant.ToString());
                 }
             }
+        }
+
+        private static async Task SeedTestInterventions(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
+        {
+            // Ensure there are firefighters available to assign to interventions
+            var firefighters = await userManager.GetUsersInRoleAsync(Roles.Firefighter.ToString());
+
+            if (firefighters == null || firefighters.Count == 0)
+            {
+                throw new Exception("No firefighters available for seeding interventions.");
+            }
+
+            var random = new Random();
+
+            var interventions = new List<Intervention>
+            {
+                new Intervention { Title = "Požar šume kod Omiša", StartTime = DateTime.UtcNow.AddDays(-2), Description = "Gašenje velikog požara šume." },
+                new Intervention { Title = "Prometna nesreća na autocesti", StartTime = DateTime.UtcNow.AddDays(-1), Description = "Intervencija u prometnoj nesreći." },
+                new Intervention { Title = "Poplava u lokalnom naselju", StartTime = DateTime.UtcNow.AddDays(-5), Description = "Evakuacija stanovništva zbog poplave." }
+            };
+
+            foreach (var intervention in interventions)
+            {
+                dbContext.Interventions.Add(intervention);
+
+                // Randomly assign 2 to 3 firefighters
+                var assignedFirefighters = firefighters.OrderBy(x => random.Next()).Take(random.Next(2, 4)).ToList();
+
+                foreach (var firefighter in assignedFirefighters)
+                {
+                    dbContext.ApplicationUserInterventions.Add(new ApplicationUserIntervention
+                    {
+                        InterventionId = intervention.Id,
+                        ApplicationUserId = firefighter.Id
+                    });
+                }
+            }
+
+            await dbContext.SaveChangesAsync();
         }
     }
 }
