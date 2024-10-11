@@ -1,0 +1,22 @@
+﻿@page "/Account/Manage"
+
+<PageTitle>Vaš račun</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-2">Vaš račun</MudText>
+
+<MudGrid>
+    <MudItem xs="12" sm="12" md="10" lg="8" xl="6">
+        <label class="mb-2 section-label1">Osnovni podaci</label>
+        <BasicData />
+        <hr class="section-divider">
+        <label class="mb-2 section-label1">Adresa e-pošte</label>
+        <Email />
+        <hr class="section-divider">
+        <label class="mb-2 section-label1">Lozinka</label>
+        <ChangePassword />
+    </MudItem>
+</MudGrid>
+
+@code {
+
+}
