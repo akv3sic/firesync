@@ -1,4 +1,5 @@
-﻿using FireSync.Models;
+﻿using FireSync.Entities;
+using FireSync.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,10 @@ namespace FireSync.Data
             : base(options)
         {
         }
+
+        public DbSet<Intervention> Interventions { get; set; }
+
+        public DbSet<ApplicationUserIntervention> ApplicationUserInterventions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
