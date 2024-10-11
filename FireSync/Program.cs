@@ -93,6 +93,11 @@ namespace FireSync
 
                 await IdentityDataSeeder.SeedRoles(roleManager);
                 await IdentityDataSeeder.SeedDefaultAdmin(userManager);
+
+                if (app.Environment.IsDevelopment())
+                {
+                    await TestDataSeeder.SeedTestUsers(userManager);
+                }
             }
 
             app.UseHttpsRedirection();
