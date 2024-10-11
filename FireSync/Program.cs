@@ -1,6 +1,8 @@
-using FireSync.Client.Pages;
 using FireSync.Components;
 using FireSync.Data;
+using FireSync.Data.Seeders;
+using FireSync.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using System.Net;
@@ -9,10 +11,10 @@ namespace FireSync
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            
+
             // Add custom configuration
             builder.Configuration.AddCustomConfiguration(builder.Environment);
 
@@ -21,6 +23,12 @@ namespace FireSync
             {
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            builder.Services.AddCascadingAuthenticationState();
+
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
@@ -42,6 +50,28 @@ namespace FireSync
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+            }
+
+            using (var scope = app.Services.CreateScope())
+            {
+                var serviceProvider = scope.ServiceProvider;
+
+                var dbContext = serviceProvider.GetRequiredService<ApplicationDbContext>();
+                var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+                var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+                // Apply any pending migrations
+                try
+                {
+                    dbContext.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    // TODO: Log the exception
+                }
+
+                await IdentityDataSeeder.SeedRoles(roleManager);
+                await IdentityDataSeeder.SeedDefaultAdmin(userManager);
             }
 
             app.UseHttpsRedirection();
