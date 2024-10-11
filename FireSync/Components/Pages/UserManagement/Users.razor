@@ -1,0 +1,102 @@
+﻿@page "/users"
+
+@attribute [StreamRendering]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@inject IUserService UserService
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+
+@using FireSync.DTOs
+@using FireSync.Enums
+@using FireSync.Services.Interfaces
+
+<PageTitle>Korisnici</PageTitle>
+
+<AuthorizeView Roles="@(nameof(Roles.Admin))">
+    <Authorized>
+        <MudGrid>
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Class="mx-auto">
+                <MudPaper Elevation="0" Padding="0" Class="mb-4">
+                    <MudGrid>
+                        <MudItem xs="12" sm="6" md="6" lg="6" xl="6" Class="d-flex align-center gap-15">
+                            <MudText Typo="Typo.h5">Pregled korisnika (@(users?.Count ?? 0))</MudText>
+                            @if (selectedUsers.Count > 0)
+                            {
+                                <MudPaper Elevation="2" Class="py-1 px-2">
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit" OnClick="@(() => DeleteUser(selectedUsers.First()))" />
+                                </MudPaper>
+                            }
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+                @if (users.Count(u => u.IsAdmin) == 1)
+                {
+                    <MudAlert Severity="Severity.Warning" Elevation="0" Icon="@Icons.Material.Filled.Warning" Class="mb-4">
+                        Postoji samo jedan administrator. Preporuka je da dodate još jednog administratora iz sigurnosnih razloga.
+                    </MudAlert>
+                }
+                <MudDataGrid T="UserOutputDto" Items="users" Filterable="false" SortMode="@SortMode.Single" Groupable="false" MultiSelection="false" FooterClass="d-none"
+                             @bind-SelectedItems="selectedUsers" Hover="true" RowClick="@RowClicked" RowClass="cursor-pointer">
+                    <Columns>
+                        <SelectColumn T="UserOutputDto" />
+                        <PropertyColumn Property="x => x.FirstName" Title="Ime" />
+                        <PropertyColumn Property="x => x.LastName" Title="Prezime" />
+                        <PropertyColumn Property="x => x.Username" Title="Korisničko ime" />
+                        <PropertyColumn Property="x => x.Email" Title="Email" />
+                        <!-- roles -->
+                        <TemplateColumn Title="Uloge">
+                            <CellTemplate Context="user">
+                                @foreach (var role in user.Item.Roles)
+                                {
+                                    <MudChip Color="Color.Primary" Text="@role.Trim()" />
+                                }
+                            </CellTemplate>
+                        </TemplateColumn>
+                    </Columns>
+                </MudDataGrid>
+            </MudItem>
+        </MudGrid>
+    </Authorized>
+    <NotAuthorized>
+        <span>Nemate ovlasti za pristup ovoj stranici.</span> @* TODO: Use MudAlert *@
+    </NotAuthorized>
+</AuthorizeView>
+
+<MudElement Class="fab-wrapper">
+    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddNewUserDialog" Size="Size.Medium" />
+</MudElement>
+
+@code {
+    private List<UserOutputDto> users = new List<UserOutputDto>();
+    private HashSet<UserOutputDto> selectedUsers = new HashSet<UserOutputDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+
+    void RowClicked(DataGridRowClickEventArgs<UserOutputDto> args)
+    {
+        GoToUserDetailsPage(args.Item.Id);
+    }
+
+    private void GoToUserDetailsPage(Guid userId)
+    {
+        NavigationManager.NavigateTo($"/users/{userId}");
+    }
+
+    private async Task LoadUsers()
+    {
+        users = await UserService.GetUsersAsync();
+        StateHasChanged();
+    }
+
+    private async void OpenAddNewUserDialog()
+    {
+    }
+
+    private async void DeleteUser(UserOutputDto user)
+    {
+    }
+}
