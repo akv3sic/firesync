@@ -3,6 +3,8 @@ using FireSync.Components.Account;
 using FireSync.Data;
 using FireSync.Data.Seeders;
 using FireSync.Models;
+using FireSync.Services;
+using FireSync.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +47,9 @@ namespace FireSync
                 .AddDefaultTokenProviders();
 
             builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityEmailSender>();
+
+            // Services registration
+            builder.Services.AddScoped<IUserService, UserService>();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
