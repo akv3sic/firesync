@@ -4,6 +4,8 @@ using FireSync.Data;
 using FireSync.Data.Seeders;
 using FireSync.MappingProfiles;
 using FireSync.Models;
+using FireSync.Repositories.Interfaces;
+using FireSync.Repositories;
 using FireSync.Services;
 using FireSync.Services.Interfaces;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -55,6 +57,10 @@ namespace FireSync
             // Services registration
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IStaffService, StaffService>();
+            builder.Services.AddScoped<IInterventionService, InterventionService>();
+
+            // Repositories registration
+            builder.Services.AddScoped<IInterventionRepository, InterventionRepository>();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
