@@ -5,9 +5,11 @@ namespace FireSync.Repositories.Interfaces
     public interface IInterventionRepository
     {
         /// <summary>
-        /// Retrieves all interventions from the database.
+        /// Retrieves paged interventions from the database.
         /// </summary>
-        /// <returns>A list of interventions.</returns>
-        Task<List<Intervention>> GetAllInterventionsAsync();
+        /// <param name="pageNumber">The page number.</param>
+        /// <param name="pageSize">The page size.</param>
+        /// <returns>A tuple containing the interventions and the total item count.</returns>
+        Task<(List<Intervention> Interventions, int TotalItemCount)> GetPagedInterventionsAsync(int pageNumber, int pageSize);
     }
 }

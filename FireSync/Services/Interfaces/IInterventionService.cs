@@ -1,4 +1,5 @@
-﻿using FireSync.DTOs.Interventions;
+﻿using FireSync.Common;
+using FireSync.DTOs.Interventions;
 
 namespace FireSync.Services.Interfaces
 {
@@ -7,7 +8,9 @@ namespace FireSync.Services.Interfaces
         /// <summary>
         /// Retrieves all interventions.
         /// </summary>
-        /// <returns>A list of interventions.</returns>
-        Task<List<InterventionOutputDto>> GetAllInterventionsAsync();
+        /// <param name="pageNumber">The page number.</param>
+        /// <param name="pageSize">The page size.</param>
+        /// <returns>A tuple containing the interventions and pagination metadata.</returns>
+        Task<(IEnumerable<InterventionOutputDto> Interventions, PaginationMetadata Pagination)> GetAllInterventionsAsync(int pageNumber, int pageSize = 10);
     }
 }

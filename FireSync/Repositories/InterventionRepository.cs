@@ -19,10 +19,19 @@ namespace FireSync.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<List<Intervention>> GetAllInterventionsAsync()
+        public async Task<(List<Intervention> Interventions, int TotalItemCount)> GetPagedInterventionsAsync(int pageNumber, int pageSize)
         {
             using var context = _contextFactory.CreateDbContext();
-            return await context.Interventions.ToListAsync();
+
+            var totalItemCount = await context.Interventions.CountAsync();
+
+            var interventions = await context.Interventions
+                .OrderByDescending(i => i.StartTime)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (interventions, totalItemCount);
         }
     }
 }
