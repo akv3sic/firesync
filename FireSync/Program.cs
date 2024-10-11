@@ -1,5 +1,7 @@
 using FireSync.Client.Pages;
 using FireSync.Components;
+using FireSync.Data;
+using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using System.Net;
 
@@ -13,6 +15,12 @@ namespace FireSync
             
             // Add custom configuration
             builder.Configuration.AddCustomConfiguration(builder.Environment);
+
+            // Add DB context
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
