@@ -1,4 +1,4 @@
-# FireSync
+# 🔥 FireSync
 
 FireSync is a comprehensive management system designed to assist fire departments, both volunteer and professional, in managing intervention logs, inventory, and staff competencies. This application aims to streamline operations, improve response times, and enhance overall efficiency within the fire department.
 
