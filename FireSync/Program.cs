@@ -2,6 +2,7 @@ using FireSync.Components;
 using FireSync.Components.Account;
 using FireSync.Data;
 using FireSync.Data.Seeders;
+using FireSync.MappingProfiles;
 using FireSync.Models;
 using FireSync.Services;
 using FireSync.Services.Interfaces;
@@ -21,6 +22,9 @@ namespace FireSync
 
             // Add custom configuration
             builder.Configuration.AddCustomConfiguration(builder.Environment);
+
+            // Add AutoMapper
+            builder.Services.AddAutoMapper(typeof(GeneralProfile));
 
             builder.Services.AddCascadingAuthenticationState();
             builder.Services.AddScoped<IdentityUserAccessor>();
