@@ -2,6 +2,7 @@
 using FireSync.Enums;
 using FireSync.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace FireSync.Data.Seeders
 {
@@ -13,10 +14,27 @@ namespace FireSync.Data.Seeders
         /// <param name="dbContext">The application database context.</param>
         /// <param name="userManager">The user manager.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <summary>
+        /// Seeds test data into the database if certain conditions are met.
+        /// </summary>
+        /// <param name="dbContext">The application database context.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public static async Task SeedData(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
-            await SeedTestUsers(userManager);
-            await SeedTestInterventions(dbContext, userManager);
+            var nonAdminUsersExist = await userManager.Users.AnyAsync(u => u.LastName != "Admin");
+
+            if (!nonAdminUsersExist)
+            {
+                await SeedTestUsers(userManager);
+            }
+
+            var interventionsExist = await dbContext.Interventions.AnyAsync();
+
+            if (!interventionsExist)
+            {
+                await SeedTestInterventions(dbContext, userManager);
+            }
         }
 
         private static async Task SeedTestUsers(UserManager<ApplicationUser> userManager)
