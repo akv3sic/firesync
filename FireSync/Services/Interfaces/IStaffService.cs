@@ -13,5 +13,10 @@ namespace FireSync.Services.Interfaces
         /// Gets all firefighters.
         /// </summary>
         Task<List<UserOutputDto>> GetFirefightersAsync();
+
+        /// <summary>
+        /// Gets all staff members except firefighters.
+        /// </summary>
+        Task<List<UserOutputDto>> GetNonFirefighterStaffAsync();
     }
 }
