@@ -58,9 +58,11 @@ namespace FireSync
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IStaffService, StaffService>();
             builder.Services.AddScoped<IInterventionService, InterventionService>();
+            builder.Services.AddScoped<IVehicleService, VehicleService>();
 
             // Repositories registration
             builder.Services.AddScoped<IInterventionRepository, InterventionRepository>();
+            builder.Services.AddScoped<IVehicleRepository, VehicleRepository>();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()

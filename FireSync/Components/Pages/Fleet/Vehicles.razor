@@ -1,0 +1,102 @@
+﻿@page "/fleet"
+
+@attribute [StreamRendering]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@inject IVehicleService VehicleService
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+
+@using FireSync.Common
+@using FireSync.Components.Shared
+@using FireSync.DTOs.Vehicles
+@using FireSync.Enums
+@using FireSync.Services.Interfaces
+
+<PageTitle>Vozni park</PageTitle>
+
+<AuthorizeView Roles="@(nameof(Roles.Admin))">
+    <Authorized>
+        <MudGrid>
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Class="mx-auto">
+                <MudPaper Elevation="0" Padding="0" Class="mb-4">
+                    <MudGrid>
+                        <MudItem xs="12" sm="6" md="6" lg="6" xl="6" Class="d-flex align-center gap-15">
+                            <MudText Typo="Typo.h5">Pregled vozila (@(vehicles?.Count ?? 0))</MudText>
+                            @if (selectedVehicles.Count > 0)
+                            {
+                                <MudPaper Elevation="2" Class="py-1 px-2">
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit" OnClick="@(() => DeleteVehicle(selectedVehicles.First()))" />
+                                </MudPaper>
+                            }
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+
+                @if ((vehicles == null || vehicles.Count == 0))
+                {
+                    @* Empty view. There are no vehicles *@
+                    <MudAlert Severity="Severity.Info" Elevation="0" Icon="@Icons.Material.Filled.Info">
+                        Nema vozila za prikaz.
+                    </MudAlert>
+                }
+                else
+                {
+                    <MudDataGrid T="VehicleOutputDto" Items="vehicles" Filterable="false" SortMode="@SortMode.Single" Groupable="false" MultiSelection="false" FooterClass="d-none"
+                                 @bind-SelectedItems="selectedVehicles" Hover="true" RowClick="@RowClicked" RowClass="cursor-pointer">
+                        <Columns>
+                            <SelectColumn T="VehicleOutputDto" />
+                            <PropertyColumn Property="x => x.LicensePlate" Title="Registarska oznaka" />
+                            <PropertyColumn Property="x => x.Make" Title="Marka" />
+                            <PropertyColumn Property="x => x.Model" Title="Model" />
+                            <PropertyColumn Property="x => x.YearOfManufacture" Title="Godina proizvodnje" />
+                        </Columns>
+                    </MudDataGrid>
+                }
+            </MudItem>
+        </MudGrid>
+    </Authorized>
+    <NotAuthorized>
+        <UnauthorizedAlert />
+    </NotAuthorized>
+</AuthorizeView>
+
+<MudElement Class="fab-wrapper">
+    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddNewVehicleDialog" Size="Size.Medium" />
+</MudElement>
+
+@code {
+    private List<VehicleOutputDto> vehicles = new List<VehicleOutputDto>();
+    private HashSet<VehicleOutputDto> selectedVehicles = new HashSet<VehicleOutputDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadVehicles();
+    }
+
+    private async Task LoadVehicles()
+    {
+        vehicles = (await VehicleService.GetAllVehiclesAsync()).ToList();
+        StateHasChanged();
+    }
+
+    private void RowClicked(DataGridRowClickEventArgs<VehicleOutputDto> args)
+    {
+        GoToVehicleDetailsPage(args.Item.LicensePlate);
+    }
+
+    private void GoToVehicleDetailsPage(string licensePlate)
+    {
+        NavigationManager.NavigateTo($"/fleet/{licensePlate}");
+    }
+
+    private async void OpenAddNewVehicleDialog()
+    {
+        // TODO: Implement opening of dialog for adding a new vehicle
+    }
+
+    private async void DeleteVehicle(VehicleOutputDto vehicle)
+    {
+        // TODO: Implement deletion of vehicle
+    }
+}
