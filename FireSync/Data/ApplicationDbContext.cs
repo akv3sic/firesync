@@ -22,6 +22,10 @@ namespace FireSync.Data
 
         public DbSet<ApplicationUserIntervention> ApplicationUserInterventions { get; set; }
 
+        public DbSet<Vehicle> Vehicles { get; set; }
+
+        public DbSet<VehicleRegistration> VehicleRegistrations { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
