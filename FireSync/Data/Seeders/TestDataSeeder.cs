@@ -35,6 +35,13 @@ namespace FireSync.Data.Seeders
             {
                 await SeedTestInterventions(dbContext, userManager);
             }
+
+            var vehiclesExist = await dbContext.Vehicles.AnyAsync();
+
+            if (!vehiclesExist)
+            {
+                await SeedTestVehicles(dbContext);
+            }
         }
 
         private static async Task SeedTestUsers(UserManager<ApplicationUser> userManager)
@@ -166,6 +173,64 @@ namespace FireSync.Data.Seeders
                 }
             }
 
+            await dbContext.SaveChangesAsync();
+        }
+
+        private static async Task SeedTestVehicles(ApplicationDbContext dbContext)
+        {
+            var vehicles = new List<Vehicle>
+            {
+                new Vehicle
+                {
+                    LicensePlate = "ZG-1234-AA",
+                    Make = "Mercedes",
+                    Model = "Sprinter",
+                    YearOfManufacture = DateTime.SpecifyKind(new DateTime(2015, 1, 1), DateTimeKind.Utc),
+                    Registrations = new List<VehicleRegistration>
+                    {
+                        new VehicleRegistration
+                        {
+                            RegistrationNumber = "ZG1234AA",
+                            RegistrationDate = DateTime.UtcNow.AddYears(-2),
+                            ExpiryDate = DateTime.UtcNow.AddYears(-1),
+                            Notes = "Initial registration"
+                        },
+                        new VehicleRegistration
+                        {
+                            RegistrationNumber = "ZG1234AB",
+                            RegistrationDate = DateTime.UtcNow.AddYears(-1),
+                            ExpiryDate = DateTime.UtcNow.AddMonths(-6),
+                            Notes = "Second registration"
+                        }
+                    }
+                },
+                new Vehicle
+                {
+                    LicensePlate = "ST-5678-BB",
+                    Make = "Toyota",
+                    Model = "Hilux",
+                    YearOfManufacture = DateTime.SpecifyKind(new DateTime(2018, 1, 1), DateTimeKind.Utc),
+                    Registrations = new List<VehicleRegistration>
+                    {
+                        new VehicleRegistration
+                        {
+                            RegistrationNumber = "ST5678BB",
+                            RegistrationDate = DateTime.UtcNow.AddYears(-2),
+                            ExpiryDate = DateTime.UtcNow.AddYears(-1),
+                            Notes = "Initial registration"
+                        },
+                        new VehicleRegistration
+                        {
+                            RegistrationNumber = "ST5678BC",
+                            RegistrationDate = DateTime.UtcNow.AddYears(-1),
+                            ExpiryDate = DateTime.UtcNow.AddMonths(-6),
+                            Notes = "Renewal"
+                        }
+                    }
+                }
+            };
+
+            dbContext.Vehicles.AddRange(vehicles);
             await dbContext.SaveChangesAsync();
         }
     }
