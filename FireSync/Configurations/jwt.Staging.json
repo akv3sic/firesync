@@ -1,0 +1,10 @@
+{
+  "JWTSettings": {
+    "Key": "ar3eKb1Mo0XgvkazBIR4LpdKNHNFdcCo0HegBwYFK4EEACOhgYkDgYYABABoyqeq",
+    "RefreshTokenKey": "MIHcAgEBBEIBUv3TR7uuZa7xyTSlaTEugDlv+gHyEp/ziGMXKNgAAXZ138JvIJuz",
+    "Issuer": "https://localhost:7188",
+    "Audience": "https://localhost:7188",
+    "DurationInMinutes": 60,
+    "RefreshTokenDurationInDays": 30
+  }
+}

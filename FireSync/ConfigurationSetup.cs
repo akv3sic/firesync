@@ -18,6 +18,8 @@
                           .AddJsonFile($"Configurations/appsettings.{env.EnvironmentName}.json", optional: true)
                           .AddJsonFile("Configurations/database.json", optional: false, reloadOnChange: true)
                           .AddJsonFile($"Configurations/database.{env.EnvironmentName}.json", optional: true)
+                          .AddJsonFile("Configurations/jwt.json", optional: false, reloadOnChange: true)
+                          .AddJsonFile($"Configurations/jwt.{env.EnvironmentName}.json", optional: true)
                           .AddEnvironmentVariables();
         }
     }
