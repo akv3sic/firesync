@@ -19,7 +19,6 @@
         public UserOutputDto(UserOutputDto user)
         {
             this.Id = user.Id;
-            this.Username = user.Username;
             this.Email = user.Email;
             this.FirstName = user.FirstName;
             this.LastName = user.LastName;
@@ -30,11 +29,6 @@
         /// Gets or sets the ID.
         /// </summary>
         public Guid Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets the user name.
-        /// </summary>
-        public string Username { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the email.

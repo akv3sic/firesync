@@ -36,7 +36,6 @@ namespace FireSync.Services
                 var userOutputDto = new UserOutputDto
                 {
                     Id = Guid.Parse(user.Id),
-                    Username = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
                     Roles = roles.ToList(),
                     FirstName = user.FirstName ?? string.Empty,
@@ -67,7 +66,6 @@ namespace FireSync.Services
                 var userOutputDto = new UserOutputDto
                 {
                     Id = Guid.Parse(user.Id),
-                    Username = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
                     Roles = roles.ToList(),
                     FirstName = user.FirstName ?? string.Empty,

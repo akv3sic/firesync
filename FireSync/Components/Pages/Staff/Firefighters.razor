@@ -37,7 +37,6 @@
                         <SelectColumn T="UserOutputDto" />
                         <PropertyColumn Property="x => x.FirstName" Title="Ime" />
                         <PropertyColumn Property="x => x.LastName" Title="Prezime" />
-                        <PropertyColumn Property="x => x.Username" Title="Korisničko ime" />
                         <PropertyColumn Property="x => x.Email" Title="Email" />
                         <!-- roles -->
                         <TemplateColumn Title="Uloge">
@@ -89,6 +88,11 @@
 
     private async void OpenAddNewFirefighterDialog()
     {
+        var result = await DialogService.Show<AddNewStaffMemberDialog>("Dodaj novog vatrogasca", new DialogOptions { MaxWidth = MaxWidth.Large }).Result;
+        if (result.Canceled == false)
+        {
+            await LoadFirefighters();
+        }
     }
 
     private async void DeleteFirefighter(UserOutputDto firefighter)

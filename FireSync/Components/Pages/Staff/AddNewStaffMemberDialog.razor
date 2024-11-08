@@ -1,0 +1,84 @@
+﻿@using FireSync.DTOs.Users
+@using FireSync.Enums
+@using FireSync.Services.Interfaces
+
+@inject IStaffService StaffService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+
+<MudDialog Class="responsive-dialog-width">
+    <DialogContent>
+        <MudForm @ref="form" Model="@newUser">
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Ime" @bind-Value="newUser.FirstName" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Prezime" @bind-Value="newUser.LastName" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Email" @bind-Value="newUser.Email" FullWidth Immediate="true" />
+                </MudItem>
+
+                <MudItem xs="12" md="12">
+                    <MudSelect T="string" Label="Odaberi uloge" SelectedValues="selectedRolesString" SelectedValuesChanged="OnSelectedRolesChanged" MultiSelection="true">
+                        @foreach (Roles role in Enum.GetValues(typeof(Roles)))
+                        {
+                            <MudSelectItem Value="role.ToString()">@role.ToString()</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">Odustani</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="Submit">Spremi</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new MudDialogInstance();
+
+    private UserInputDto newUser = new UserInputDto();
+    private List<string> selectedRolesString = new List<string>();
+    private MudForm form;
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                newUser.Roles = selectedRolesString.Select(role => Enum.Parse<Roles>(role)).ToList();
+
+                var result = await StaffService.AddStaffAsync(newUser);
+
+                if (result.Succeeded)
+                {
+                    Snackbar.Add("Uspješno dodano.", Severity.Success);
+                    MudDialog.Close(DialogResult.Ok(true));
+                }
+                else
+                {
+                    Snackbar.Add("Došlo je do greške.", Severity.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add("Došlo je do greške.", Severity.Error);
+            }
+        }
+    }
+
+    private void OnSelectedRolesChanged(IEnumerable<string> selectedRoles)
+    {
+        selectedRolesString = selectedRoles.ToList();
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

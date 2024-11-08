@@ -33,7 +33,6 @@ namespace FireSync.Services
                 var userOutputDto = new UserOutputDto
                 {
                     Id = Guid.Parse(user.Id),
-                    Username = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
                     Roles = roles.ToList(),
                     FirstName = user.FirstName ?? string.Empty,
@@ -64,7 +63,6 @@ namespace FireSync.Services
                 var userOutputDto = new UserOutputDto
                 {
                     Id = Guid.Parse(user.Id),
-                    Username = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
                     Roles = roles.ToList(),
                     FirstName = user.FirstName ?? string.Empty,
@@ -95,7 +93,6 @@ namespace FireSync.Services
                 var userOutputDto = new UserOutputDto
                 {
                     Id = Guid.Parse(user.Id),
-                    Username = user.UserName ?? string.Empty,
                     Email = user.Email ?? string.Empty,
                     Roles = roles.ToList(),
                     FirstName = user.FirstName ?? string.Empty,
@@ -112,6 +109,7 @@ namespace FireSync.Services
         public async Task<IdentityResult> AddStaffAsync(UserInputDto userInputDto)
         {
             var newUser = mapper.Map<ApplicationUser>(userInputDto);
+            newUser.UserName = newUser.Email;
 
             var generatedPassword = PasswordGenerator.GeneratePassword();
 
