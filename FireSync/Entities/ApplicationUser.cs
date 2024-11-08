@@ -33,5 +33,23 @@ namespace FireSync.Models
         /// </summary>
         [MaxLength(200)]
         public string Address { get; set; } = string.Empty;
+
+        /// <inheritdoc/>
+        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+
+        /// <inheritdoc/>
+        public DateTime? UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        /// <inheritdoc/>
+        public string? CreatedBy { get; set; }
+
+        /// <inheritdoc/>
+        public string? UpdatedBy { get; set; }
+
+        /// <inheritdoc/>
+        public DateTime? DeletedAt { get; set; }
+
+        /// <inheritdoc/>
+        public string DeletedBy { get; set; } = string.Empty;
     }
 }
