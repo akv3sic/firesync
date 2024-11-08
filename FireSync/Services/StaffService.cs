@@ -1,5 +1,8 @@
-﻿using FireSync.DTOs;
+﻿using AutoMapper;
+using FireSync.DTOs;
+using FireSync.DTOs.Users;
 using FireSync.Enums;
+using FireSync.Helpers;
 using FireSync.Models;
 using FireSync.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -10,12 +13,13 @@ namespace FireSync.Services
     public class StaffService : IStaffService
     {
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly IMapper mapper;
 
-        public StaffService(UserManager<ApplicationUser> userManager)
+        public StaffService(UserManager<ApplicationUser> userManager, IMapper mapper)
         {
             this.userManager = userManager;
+            this.mapper = mapper;
         }
-
 
         /// <inheritdoc/>
         public async Task<List<UserOutputDto>> GetStaffAsync()
@@ -102,6 +106,32 @@ namespace FireSync.Services
             }
 
             return userOutputDtos;
+        }
+
+        /// <inheritdoc/>
+        public async Task<IdentityResult> AddStaffAsync(UserInputDto userInputDto)
+        {
+            var newUser = mapper.Map<ApplicationUser>(userInputDto);
+
+            var generatedPassword = PasswordGenerator.GeneratePassword();
+
+            var result = await userManager.CreateAsync(newUser, generatedPassword);
+
+            if (!result.Succeeded)
+            {
+                return result;
+            }
+
+            foreach (var role in userInputDto.Roles)
+            {
+                var roleResult = await userManager.AddToRoleAsync(newUser, role.ToString());
+                if (!roleResult.Succeeded)
+                {
+                    return roleResult;
+                }
+            }
+
+            return IdentityResult.Success;
         }
     }
 }
