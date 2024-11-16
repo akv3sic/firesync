@@ -17,12 +17,14 @@ namespace FireSync.Services
             _mapper = mapper;
         }
 
+        /// <inheritdoc />
         public async Task<IEnumerable<VehicleOutputDto>> GetAllVehiclesAsync()
         {
             var vehicles = await _vehicleRepository.GetAllVehiclesAsync();
             return _mapper.Map<IEnumerable<VehicleOutputDto>>(vehicles);
         }
 
+        /// <inheritdoc />
         public async Task<bool> AddVehicleAsync(VehicleInputDto vehicleInputDto)
         {
             var vehicle = _mapper.Map<Vehicle>(vehicleInputDto);
@@ -30,6 +32,12 @@ namespace FireSync.Services
             await _vehicleRepository.AddVehicleAsync(vehicle);
 
             return true;
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> DeleteVehicleAsync(Guid vehicleId)
+        {
+            return await _vehicleRepository.DeleteVehicleAsync(vehicleId);
         }
     }
 }

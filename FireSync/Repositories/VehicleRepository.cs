@@ -33,5 +33,20 @@ namespace FireSync.Repositories
 
             await context.SaveChangesAsync();
         }
+
+        public async Task<bool> DeleteVehicleAsync(Guid vehicleId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            var vehicle = await context.Vehicles.FindAsync(vehicleId);
+            if (vehicle != null)
+            {
+                context.Vehicles.Remove(vehicle);
+                await context.SaveChangesAsync();
+                return true;
+            }
+
+            return false;
+        }
     }
 }

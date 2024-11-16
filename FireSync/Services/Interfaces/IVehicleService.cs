@@ -16,5 +16,12 @@ namespace FireSync.Services.Interfaces
         /// <param name="vehicleInputDto">The vehicle to add.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation containing a value indicating whether the vehicle was added.</returns>
         Task<bool> AddVehicleAsync(VehicleInputDto vehicleInputDto);
+
+        /// <summary>
+        /// Deletes a vehicle.
+        /// </summary>
+        /// <param name="vehicleId">The vehicle identifier.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation containing a value indicating whether the vehicle was deleted.</returns>
+        Task<bool> DeleteVehicleAsync(Guid vehicleId);
     }
 }

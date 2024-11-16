@@ -6,6 +6,7 @@
 @inject IVehicleService VehicleService
 @inject IDialogService DialogService
 @inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
 
 @using FireSync.Common
 @using FireSync.Components.Shared
@@ -99,8 +100,21 @@
         }
     }
 
-    private async void DeleteVehicle(VehicleOutputDto vehicle)
+    private async Task DeleteVehicle(VehicleOutputDto vehicle)
     {
-        // TODO: Implement deletion of vehicle
+        var confirm = await DialogService.ShowMessageBox("Potvrda", $"Jeste li sigurni da želite izbrisati vozilo {vehicle.LicensePlate}?", yesText: "Da", noText: "Ne");
+        if (confirm == true)
+        {
+            var result = await VehicleService.DeleteVehicleAsync(vehicle.Id);
+            if (result)
+            {
+                Snackbar.Add("Uspješno izbrisano.", Severity.Success);
+                await LoadVehicles();
+            }
+            else
+            {
+                Snackbar.Add("Došlo je do greške prilikom brisanja.", Severity.Error);
+            }
+        }
     }
 }

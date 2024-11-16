@@ -6,5 +6,6 @@ namespace FireSync.Repositories.Interfaces
     {
         Task<IEnumerable<Vehicle>> GetAllVehiclesAsync();
         Task AddVehicleAsync(Vehicle vehicle);
+        Task<bool> DeleteVehicleAsync(Guid vehicleId);
     }
 }
