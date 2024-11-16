@@ -25,5 +25,13 @@ namespace FireSync.Repositories
             return await context.Vehicles.AsNoTracking()
                                          .ToListAsync();
         }
+
+        public async Task AddVehicleAsync(Vehicle vehicle)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            context.Vehicles.Add(vehicle);
+
+            await context.SaveChangesAsync();
+        }
     }
 }

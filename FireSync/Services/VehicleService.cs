@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FireSync.DTOs.Vehicles;
+using FireSync.Entities;
 using FireSync.Repositories.Interfaces;
 using FireSync.Services.Interfaces;
 
@@ -20,6 +21,15 @@ namespace FireSync.Services
         {
             var vehicles = await _vehicleRepository.GetAllVehiclesAsync();
             return _mapper.Map<IEnumerable<VehicleOutputDto>>(vehicles);
+        }
+
+        public async Task<bool> AddVehicleAsync(VehicleInputDto vehicleInputDto)
+        {
+            var vehicle = _mapper.Map<Vehicle>(vehicleInputDto);
+
+            await _vehicleRepository.AddVehicleAsync(vehicle);
+
+            return true;
         }
     }
 }

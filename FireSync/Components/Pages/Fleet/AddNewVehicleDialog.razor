@@ -1,0 +1,68 @@
+﻿@using FireSync.DTOs.Vehicles
+@using FireSync.Services.Interfaces
+
+@inject IVehicleService VehicleService
+@inject ISnackbar Snackbar
+
+<MudDialog Class="responsive-dialog-width">
+    <DialogContent>
+        <MudForm @ref="form" Model="@newVehicle">
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Registracijska oznaka" @bind-Value="newVehicle.LicensePlate" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Proizvođač" @bind-Value="newVehicle.Make" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField Label="Model" @bind-Value="newVehicle.Model" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudNumericField Label="Godina proizvodnje" T="short" @bind-Value="newVehicle.YearOfManufacture" FullWidth Immediate="true" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">Odustani</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="Submit">Spremi</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new MudDialogInstance();
+
+    private VehicleInputDto newVehicle = new VehicleInputDto();
+    private MudForm form;
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                var result = await VehicleService.AddVehicleAsync(newVehicle);
+
+                if (result)
+                {
+                    Snackbar.Add("Vozilo uspješno dodano.", Severity.Success);
+                    MudDialog.Close(DialogResult.Ok(true));
+                }
+                else
+                {
+                    Snackbar.Add("Došlo je do greške.", Severity.Error);
+                }
+            }
+            catch (Exception)
+            {
+                Snackbar.Add("Došlo je do greške.", Severity.Error);
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}

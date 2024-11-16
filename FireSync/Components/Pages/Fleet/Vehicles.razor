@@ -92,7 +92,11 @@
 
     private async void OpenAddNewVehicleDialog()
     {
-        // TODO: Implement opening of dialog for adding a new vehicle
+        var result = await DialogService.Show<AddNewVehicleDialog>("Dodaj novo vozilo", new DialogOptions { MaxWidth = MaxWidth.Large }).Result;
+        if (result.Canceled == false)
+        {
+            await LoadVehicles();
+        }
     }
 
     private async void DeleteVehicle(VehicleOutputDto vehicle)

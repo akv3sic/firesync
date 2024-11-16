@@ -13,6 +13,7 @@ namespace FireSync.MappingProfiles
         {
             CreateMap<Intervention, InterventionOutputDto>().ReverseMap();
             CreateMap<Vehicle, VehicleOutputDto>();
+            CreateMap<VehicleInputDto, Vehicle>();
             CreateMap<UserInputDto, ApplicationUser>();
         }
     }
