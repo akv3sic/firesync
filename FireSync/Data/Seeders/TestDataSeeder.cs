@@ -185,7 +185,7 @@ namespace FireSync.Data.Seeders
                     LicensePlate = "ZG-1234-AA",
                     Make = "Mercedes",
                     Model = "Sprinter",
-                    YearOfManufacture = DateTime.SpecifyKind(new DateTime(2015, 1, 1), DateTimeKind.Utc),
+                    YearOfManufacture = (short)2015,
                     Registrations = new List<VehicleRegistration>
                     {
                         new VehicleRegistration
@@ -209,7 +209,7 @@ namespace FireSync.Data.Seeders
                     LicensePlate = "ST-5678-BB",
                     Make = "Toyota",
                     Model = "Hilux",
-                    YearOfManufacture = DateTime.SpecifyKind(new DateTime(2018, 1, 1), DateTimeKind.Utc),
+                    YearOfManufacture = (short)2018,
                     Registrations = new List<VehicleRegistration>
                     {
                         new VehicleRegistration

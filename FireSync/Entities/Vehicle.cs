@@ -22,7 +22,7 @@ namespace FireSync.Entities
         public string Model { get; set; } = string.Empty;
 
         [DataType(DataType.Date)]
-        public DateTime? YearOfManufacture { get; set; }
+        public short? YearOfManufacture { get; set; }
 
         public ICollection<VehicleRegistration> Registrations { get; set; } = new List<VehicleRegistration>();
 
