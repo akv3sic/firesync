@@ -33,5 +33,13 @@ namespace FireSync.Repositories
 
             return (interventions, totalItemCount);
         }
+
+        /// <inheritdoc />
+        public async Task AddAsync(Intervention intervention)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            await context.Interventions.AddAsync(intervention);
+            await context.SaveChangesAsync();
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FireSync.Common;
 using FireSync.DTOs.Interventions;
+using FireSync.Entities;
 using FireSync.Repositories.Interfaces;
 using FireSync.Services.Interfaces;
 
@@ -34,6 +35,14 @@ namespace FireSync.Services
             var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
 
             return (interventionDtos, paginationMetadata);
+        }
+
+        /// <inheritdoc />
+        public async Task AddInterventionAsync(InterventionInputDto intervention)
+        {
+            var entity = _mapper.Map<Intervention>(intervention);
+
+            await _interventionRepository.AddAsync(entity);
         }
     }
 }

@@ -117,7 +117,13 @@
 
     private async void OpenAddNewInterventionDialog()
     {
-        // TODO: Implement opening of dialog for adding new intervention
+        var dialog = DialogService.Show<AddInterventionDialog>("Dodaj novu intervenciju");
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await LoadInterventions();
+        }
     }
 
     private async void DeleteIntervention(InterventionOutputDto intervention)

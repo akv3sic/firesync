@@ -1,0 +1,62 @@
+﻿@using FireSync.DTOs.Interventions
+@using FireSync.Services
+@using FireSync.Services.Interfaces
+
+@inject ISnackbar Snackbar
+@inject IInterventionService InterventionService
+
+<MudDialog Class="responsive-dialog-width">
+    <DialogContent>
+        <MudForm @ref="form" Model="@newIntervention">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField Label="Naslov" @bind-Value="newIntervention.Title" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField Label="Opis" @bind-Value="newIntervention.Description" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField T="DateTime?" Format="s" Label="Početno vrijeme" InputType="InputType.DateTimeLocal" @bind-Value="newIntervention.StartTime" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField T="DateTime?" Format="s" Label="Završno vrijeme" InputType="InputType.DateTimeLocal" @bind-Value="newIntervention.EndTime" FullWidth Immediate="true" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">Odustani</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="Submit">Spremi</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new MudDialogInstance();
+
+    private InterventionInputDto newIntervention = new InterventionInputDto();
+    private MudForm form;
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                await InterventionService.AddInterventionAsync(newIntervention);
+
+                Snackbar.Add("Intervencija uspješno dodana.", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add("Došlo je do greške prilikom dodavanja intervencije.", Severity.Error);
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
