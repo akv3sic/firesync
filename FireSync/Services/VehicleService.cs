@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FireSync.Common;
 using FireSync.DTOs.Vehicles;
 using FireSync.Entities;
 using FireSync.Repositories.Interfaces;
@@ -22,6 +23,21 @@ namespace FireSync.Services
         {
             var vehicles = await _vehicleRepository.GetAllVehiclesAsync();
             return _mapper.Map<IEnumerable<VehicleOutputDto>>(vehicles);
+        }
+
+        /// <inheritdoc />
+        public async Task<(IEnumerable<VehicleOutputDto>, PaginationMetadata)> GetPagedVehiclesAsync(int pageNumber, int pageSize = 10)
+        {
+            var vehicles = await _vehicleRepository.GetAllVehiclesAsync();
+            var totalItemCount = vehicles.Count();
+
+            var pagedVehicles = vehicles
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
+            return (_mapper.Map<IEnumerable<VehicleOutputDto>>(pagedVehicles), paginationMetadata);
         }
 
         /// <inheritdoc />

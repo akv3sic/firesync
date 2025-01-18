@@ -23,7 +23,7 @@
                 <MudPaper Elevation="0" Padding="0" Class="mb-4">
                     <MudGrid>
                         <MudItem xs="12" sm="6" md="6" lg="6" xl="6" Class="d-flex align-center gap-15">
-                            <MudText Typo="Typo.h5">Pregled vozila (@(vehicles?.Count ?? 0))</MudText>
+                            <MudText Typo="Typo.h5">Pregled vozila (@(paginationMetadata?.TotalItemCount ?? 0))</MudText>
                             @if (selectedVehicles.Count > 0)
                             {
                                 <MudPaper Elevation="2" Class="py-1 px-2">
@@ -34,7 +34,7 @@
                     </MudGrid>
                 </MudPaper>
 
-                @if ((vehicles == null || vehicles.Count == 0))
+                @if ((vehicles == null || !vehicles.Any()))
                 {
                     @* Empty view. There are no vehicles *@
                     <MudAlert Severity="Severity.Info" Elevation="0" Icon="@Icons.Material.Filled.Info">
@@ -53,6 +53,10 @@
                             <PropertyColumn Property="x => x.YearOfManufacture" Title="Godina proizvodnje" />
                         </Columns>
                     </MudDataGrid>
+
+                    <div class="d-flex justify-center my-4">
+                        <MudPagination Count="paginationMetadata?.TotalPageCount ?? 0" @bind-Selected="currentPage" />
+                    </div>
                 }
             </MudItem>
         </MudGrid>
@@ -67,8 +71,10 @@
 </MudElement>
 
 @code {
-    private List<VehicleOutputDto> vehicles = new List<VehicleOutputDto>();
-    private HashSet<VehicleOutputDto> selectedVehicles = new HashSet<VehicleOutputDto>();
+    private List<VehicleOutputDto> vehicles = new();
+    private HashSet<VehicleOutputDto> selectedVehicles = new();
+    private PaginationMetadata paginationMetadata;
+    private int currentPage = 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,7 +83,9 @@
 
     private async Task LoadVehicles()
     {
-        vehicles = (await VehicleService.GetAllVehiclesAsync()).ToList();
+        var result = await VehicleService.GetPagedVehiclesAsync(currentPage, 10);
+        vehicles = result.Item1.ToList();
+        paginationMetadata = result.Item2;
         StateHasChanged();
     }
 
@@ -94,7 +102,7 @@
     private async void OpenAddNewVehicleDialog()
     {
         var result = await DialogService.Show<AddNewVehicleDialog>("Dodaj novo vozilo", new DialogOptions { MaxWidth = MaxWidth.Large }).Result;
-        if (result.Canceled == false)
+        if (!result.Canceled)
         {
             await LoadVehicles();
         }

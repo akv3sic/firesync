@@ -1,4 +1,5 @@
-﻿using FireSync.DTOs.Vehicles;
+﻿using FireSync.Common;
+using FireSync.DTOs.Vehicles;
 
 namespace FireSync.Services.Interfaces
 {
@@ -9,6 +10,14 @@ namespace FireSync.Services.Interfaces
         /// </summary>
         /// <returns>A collection of vehicles with basic information.</returns>
         Task<IEnumerable<VehicleOutputDto>> GetAllVehiclesAsync();
+
+        /// <summary>
+        /// Gets paginated list of vehicles.
+        /// </summary>
+        /// <param name="pageNumber">Current page number.</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <returns>Tuple containing a list of VehicleOutputDto and PaginationMetadata.</returns>
+        Task<(IEnumerable<VehicleOutputDto>, PaginationMetadata)> GetPagedVehiclesAsync(int pageNumber, int pageSize = 10);
 
         /// <summary>
         /// Adds a new vehicle.
