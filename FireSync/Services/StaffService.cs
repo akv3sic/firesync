@@ -13,144 +13,105 @@ namespace FireSync.Services
 {
     public class StaffService : IStaffService
     {
-        private readonly UserManager<ApplicationUser> userManager;
-        private readonly IMapper mapper;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly IMapper _mapper;
 
-        public StaffService(UserManager<ApplicationUser> userManager, IMapper mapper)
+        public StaffService(IServiceProvider serviceProvider, IMapper mapper)
         {
-            this.userManager = userManager;
-            this.mapper = mapper;
+            _serviceProvider = serviceProvider;
+            _mapper = mapper;
         }
 
         /// <inheritdoc/>
         public async Task<List<UserOutputDto>> GetStaffAsync()
         {
-            var users = await this.userManager.Users.ToListAsync();
-            var userOutputDtos = new List<UserOutputDto>();
+            using var scope = _serviceProvider.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            foreach (var user in users)
-            {
-                var roles = await this.userManager.GetRolesAsync(user);
-                var userOutputDto = new UserOutputDto
-                {
-                    Id = Guid.Parse(user.Id),
-                    Email = user.Email ?? string.Empty,
-                    Roles = roles.ToList(),
-                    FirstName = user.FirstName ?? string.Empty,
-                    LastName = user.LastName ?? string.Empty,
-                };
-
-                userOutputDtos.Add(userOutputDto);
-            }
-
-            return userOutputDtos;
+            var users = await userManager.Users.ToListAsync();
+            return await MapUsersToDtoAsync(users, userManager);
         }
 
         /// <inheritdoc/>
         public async Task<List<UserOutputDto>> GetFirefightersAsync()
         {
-            var users = await this.userManager.Users.ToListAsync();
-            var userOutputDtos = new List<UserOutputDto>();
+            using var scope = _serviceProvider.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var users = await userManager.Users.ToListAsync();
+            var firefighters = new List<ApplicationUser>();
 
             foreach (var user in users)
             {
-                var roles = await this.userManager.GetRolesAsync(user);
-
-                if (!roles.Contains(Roles.Firefighter.ToString()))
+                var roles = await userManager.GetRolesAsync(user);
+                if (roles.Contains(Roles.Firefighter.ToString()))
                 {
-                    continue;
+                    firefighters.Add(user);
                 }
-
-                var userOutputDto = new UserOutputDto
-                {
-                    Id = Guid.Parse(user.Id),
-                    Email = user.Email ?? string.Empty,
-                    Roles = roles.ToList(),
-                    FirstName = user.FirstName ?? string.Empty,
-                    LastName = user.LastName ?? string.Empty,
-                };
-
-                userOutputDtos.Add(userOutputDto);
             }
 
-            return userOutputDtos;
+            return await MapUsersToDtoAsync(firefighters, userManager);
         }
 
         /// <inheritdoc/>
         public async Task<(IEnumerable<UserOutputDto>, PaginationMetadata)> GetPagedFirefightersAsync(int pageNumber, int pageSize = 10)
         {
-            var Users = await userManager.Users.ToListAsync();
-            var firefighters = new List<UserOutputDto>();
-            foreach (var user in Users)
+            using var scope = _serviceProvider.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var users = await userManager.Users.ToListAsync();
+            var firefighters = new List<ApplicationUser>();
+
+            foreach (var user in users)
             {
                 var roles = await userManager.GetRolesAsync(user);
-
-                if (!roles.Contains(Roles.Firefighter.ToString()))
+                if (roles.Contains(Roles.Firefighter.ToString()))
                 {
-                    continue;
+                    firefighters.Add(user);
                 }
-
-                var userOutputDto = new UserOutputDto
-                {
-                    Id = Guid.Parse(user.Id),
-                    Email = user.Email ?? string.Empty,
-                    Roles = roles.ToList(),
-                    FirstName = user.FirstName ?? string.Empty,
-                    LastName = user.LastName ?? string.Empty,
-                };
-
-                firefighters.Add(userOutputDto);
             }
 
             var totalItemCount = firefighters.Count;
-
             var pagedFirefighters = firefighters
                 .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize);
+                .Take(pageSize)
+                .ToList();
 
             var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
-
-            return (pagedFirefighters, paginationMetadata);
+            return (await MapUsersToDtoAsync(pagedFirefighters, userManager), paginationMetadata);
         }
 
         /// <inheritdoc/>
         public async Task<List<UserOutputDto>> GetNonFirefighterStaffAsync()
         {
-            var users = await this.userManager.Users.ToListAsync();
-            var userOutputDtos = new List<UserOutputDto>();
+            using var scope = _serviceProvider.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var users = await userManager.Users.ToListAsync();
+            var nonFirefighters = new List<ApplicationUser>();
 
             foreach (var user in users)
             {
-                var roles = await this.userManager.GetRolesAsync(user);
-
-                if (roles.Contains(Roles.Firefighter.ToString()))
+                var roles = await userManager.GetRolesAsync(user);
+                if (!roles.Contains(Roles.Firefighter.ToString()))
                 {
-                    continue;
+                    nonFirefighters.Add(user);
                 }
-
-                var userOutputDto = new UserOutputDto
-                {
-                    Id = Guid.Parse(user.Id),
-                    Email = user.Email ?? string.Empty,
-                    Roles = roles.ToList(),
-                    FirstName = user.FirstName ?? string.Empty,
-                    LastName = user.LastName ?? string.Empty,
-                };
-
-                userOutputDtos.Add(userOutputDto);
             }
 
-            return userOutputDtos;
+            return await MapUsersToDtoAsync(nonFirefighters, userManager);
         }
 
         /// <inheritdoc/>
         public async Task<IdentityResult> AddStaffAsync(UserInputDto userInputDto)
         {
-            var newUser = mapper.Map<ApplicationUser>(userInputDto);
+            using var scope = _serviceProvider.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var newUser = _mapper.Map<ApplicationUser>(userInputDto);
             newUser.UserName = newUser.Email;
 
             var generatedPassword = PasswordGenerator.GeneratePassword();
-
             var result = await userManager.CreateAsync(newUser, generatedPassword);
 
             if (!result.Succeeded)
@@ -168,6 +129,32 @@ namespace FireSync.Services
             }
 
             return IdentityResult.Success;
+        }
+
+        /// <summary>
+        /// Maps a list of users to their DTO representation.
+        /// </summary>
+        /// <param name="users">The list of users to map.</param>
+        /// <param name="userManager">The UserManager instance for fetching roles.</param>
+        /// <returns>A task representing the asynchronous operation, containing a list of <see cref="UserOutputDto"/>.</returns>
+        private async Task<List<UserOutputDto>> MapUsersToDtoAsync(List<ApplicationUser> users, UserManager<ApplicationUser> userManager)
+        {
+            var userOutputDtos = new List<UserOutputDto>();
+
+            foreach (var user in users)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                userOutputDtos.Add(new UserOutputDto
+                {
+                    Id = Guid.Parse(user.Id),
+                    Email = user.Email ?? string.Empty,
+                    Roles = roles.ToList(),
+                    FirstName = user.FirstName ?? string.Empty,
+                    LastName = user.LastName ?? string.Empty,
+                });
+            }
+
+            return userOutputDtos;
         }
     }
 }
