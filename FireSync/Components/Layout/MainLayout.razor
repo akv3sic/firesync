@@ -1,27 +1,60 @@
 ﻿@inherits LayoutComponentBase
 
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 
 <MudThemeProvider @rendermode="new InteractiveServerRenderMode(prerender: false)" />
 <MudPopoverProvider @rendermode="new InteractiveServerRenderMode(prerender: false)" />
 <MudDialogProvider @rendermode="new InteractiveServerRenderMode(prerender: false)" />
 <MudSnackbarProvider @rendermode="new InteractiveServerRenderMode(prerender: false)" />
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@if (isAuthenticated)
+    {
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
+        </div>
 
-    <main>
-        <Header />
-        
-        <article class="mt-2 px-4 py-4">
-            @Body
-        </article>
-    </main>
-</div>
+        <main>
+            <Header />
+            <article class="mt-2 px-4 py-4">
+                @Body
+            </article>
+        </main>
+    </div>
+}
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code {
+    private bool isAuthenticated = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity == null || !user.Identity.IsAuthenticated)
+        {
+            // Redirect to login page if user is not authenticated
+            var currentRelativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+            var returnUrl = Uri.EscapeDataString(currentRelativePath);
+            if (!string.IsNullOrEmpty(returnUrl))
+            {
+                NavigationManager.NavigateTo($"/Account/Login?ReturnUrl={returnUrl}");
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/Account/Login");
+            }
+        }
+        else
+        {
+            isAuthenticated = true;
+        }
+    }
+}
