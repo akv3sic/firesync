@@ -31,6 +31,14 @@ namespace FireSync.Services.Interfaces
         Task<List<UserOutputDto>> GetNonFirefighterStaffAsync();
 
         /// <summary>
+        /// Gets paginated list of non-firefighter staff members.
+        /// </summary>
+        /// <param name="pageNumber">Current page number.</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <returns>Tuple containing a list of UserOutputDto and PaginationMetadata.</returns>
+        Task<(IEnumerable<UserOutputDto>, PaginationMetadata)> GetPagedNonFirefighterStaffAsync(int pageNumber, int pageSize = 10);
+
+        /// <summary>
         /// Adds a new staff member.
         /// </summary>
         /// <param name="userInputDto">DTO containing user details.</param>

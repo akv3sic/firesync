@@ -7,6 +7,7 @@
 @inject IDialogService DialogService
 @inject NavigationManager NavigationManager
 
+@using FireSync.Common
 @using FireSync.Components.Shared
 @using FireSync.DTOs
 @using FireSync.Enums
@@ -21,7 +22,7 @@
                 <MudPaper Elevation="0" Padding="0" Class="mb-4">
                     <MudGrid>
                         <MudItem xs="12" sm="6" md="6" lg="6" xl="6" Class="d-flex align-center gap-15">
-                            <MudText Typo="Typo.h5">Pregled osoblja (@(nonFirefighters?.Count ?? 0))</MudText>
+                            <MudText Typo="Typo.h5">Pregled osoblja (@(paginationMetadata?.TotalItemCount ?? 0))</MudText>
                             @if (selectedStaff.Count > 0)
                             {
                                 <MudPaper Elevation="2" Class="py-1 px-2">
@@ -31,29 +32,42 @@
                         </MudItem>
                     </MudGrid>
                 </MudPaper>
-                <MudDataGrid T="UserOutputDto" Items="nonFirefighters" Filterable="false" SortMode="@SortMode.Single" Groupable="false" MultiSelection="false" FooterClass="d-none"
-                             @bind-SelectedItems="selectedStaff" Hover="true" RowClick="@RowClicked" RowClass="cursor-pointer">
-                    <Columns>
-                        <SelectColumn T="UserOutputDto" />
-                        <PropertyColumn Property="x => x.FirstName" Title="Ime" />
-                        <PropertyColumn Property="x => x.LastName" Title="Prezime" />
-                        <PropertyColumn Property="x => x.Email" Title="Email" />
+                @if (nonFirefighters == null || !nonFirefighters.Any())
+                {
+                    <MudAlert Severity="Severity.Info" Elevation="0" Icon="@Icons.Material.Filled.Info">
+                        Nema osoblja za prikaz.
+                    </MudAlert>
+                }
+                else
+                {
+                    <MudDataGrid T="UserOutputDto" Items="nonFirefighters" Filterable="false" SortMode="@SortMode.Single" Groupable="false" MultiSelection="false"
+                                 @bind-SelectedItems="selectedStaff" Hover="true" RowClick="@RowClicked" RowClass="cursor-pointer">
+                        <Columns>
+                            <SelectColumn T="UserOutputDto" />
+                            <PropertyColumn Property="x => x.FirstName" Title="Ime" />
+                            <PropertyColumn Property="x => x.LastName" Title="Prezime" />
+                            <PropertyColumn Property="x => x.Email" Title="Email" />
                         <!-- roles -->
-                        <TemplateColumn Title="Uloge">
-                            <CellTemplate Context="staff">
-                                @foreach (var role in staff.Item.Roles)
-                                {
-                                    <MudChip Color="Color.Primary" Text="@role.Trim()" />
-                                }
-                            </CellTemplate>
-                        </TemplateColumn>
-                    </Columns>
-                </MudDataGrid>
+                            <TemplateColumn Title="Uloge">
+                                <CellTemplate Context="staff">
+                                    @foreach (var role in staff.Item.Roles)
+                                    {
+                                        <MudChip Color="Color.Primary" Text="@role.Trim()" />
+                                    }
+                                </CellTemplate>
+                            </TemplateColumn>
+                        </Columns>
+                    </MudDataGrid>
+
+                    <div class="d-flex justify-center my-4">
+                        <MudPagination Count="paginationMetadata?.TotalPageCount ?? 0" @bind-Selected="currentPage" />
+                    </div>
+                }
             </MudItem>
         </MudGrid>
     </Authorized>
     <NotAuthorized>
-        <UnauthorizedAlert/>
+        <UnauthorizedAlert />
     </NotAuthorized>
 </AuthorizeView>
 
@@ -62,12 +76,22 @@
 </MudElement>
 
 @code {
-    private List<UserOutputDto> nonFirefighters = new List<UserOutputDto>();
-    private HashSet<UserOutputDto> selectedStaff = new HashSet<UserOutputDto>();
+    private List<UserOutputDto> nonFirefighters = new();
+    private HashSet<UserOutputDto> selectedStaff = new();
+    private PaginationMetadata paginationMetadata;
+    private int currentPage = 1;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadNonFirefighterStaff();
+    }
+
+    private async Task LoadNonFirefighterStaff()
+    {
+        var result = await StaffService.GetPagedNonFirefighterStaffAsync(currentPage, 10);
+        nonFirefighters = result.Item1.ToList();
+        paginationMetadata = result.Item2;
+        StateHasChanged();
     }
 
     void RowClicked(DataGridRowClickEventArgs<UserOutputDto> args)
@@ -80,11 +104,6 @@
         NavigationManager.NavigateTo($"/staff/{staffId}");
     }
 
-    private async Task LoadNonFirefighterStaff()
-    {
-        nonFirefighters = await StaffService.GetNonFirefighterStaffAsync();
-        StateHasChanged();
-    }
 
     private async void OpenAddNewStaffDialog()
     {

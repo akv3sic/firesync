@@ -102,6 +102,34 @@ namespace FireSync.Services
             return await MapUsersToDtoAsync(nonFirefighters, userManager);
         }
 
+        public async Task<(IEnumerable<UserOutputDto>, PaginationMetadata)> GetPagedNonFirefighterStaffAsync(int pageNumber, int pageSize = 10)
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            var users = await userManager.Users.ToListAsync();
+            var nonFirefighters = new List<ApplicationUser>();
+
+            foreach (var user in users)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                if (!roles.Contains(Roles.Firefighter.ToString()))
+                {
+                    nonFirefighters.Add(user);
+                }
+            }
+
+            var totalItemCount = nonFirefighters.Count;
+
+            var pagedUsers = nonFirefighters
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
+            return (await MapUsersToDtoAsync(pagedUsers, userManager), paginationMetadata);
+        }
+
         /// <inheritdoc/>
         public async Task<IdentityResult> AddStaffAsync(UserInputDto userInputDto)
         {
