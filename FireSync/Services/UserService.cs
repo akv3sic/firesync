@@ -84,5 +84,18 @@ namespace FireSync.Services
             var adminUsers = await this.GetAdminUsersAsync();
             return adminUsers.Count == 1;
         }
+
+        /// <inheritdoc/>
+        public async Task<string> GetUserInitialsAsync(string userId)
+        {
+            var user = await this.userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                var initials = user.FirstName[0].ToString() + user.LastName[0].ToString();
+                return initials.ToUpper();
+            }
+
+            return string.Empty;
+        }
     }
 }

@@ -1,7 +1,11 @@
 ﻿@attribute [StreamRendering]
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IUserService UserService
 
+@using FireSync.Services
+@using FireSync.Services.Interfaces
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.Extensions.Localization
 @using Microsoft.AspNetCore.Components.Authorization
@@ -31,7 +35,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // mock user initials
-        initials = "AB";
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity != null && user.Identity.IsAuthenticated)
+        {
+            var userId = user.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                initials = await UserService.GetUserInitialsAsync(userId);
+            }
+        }
     }
 }

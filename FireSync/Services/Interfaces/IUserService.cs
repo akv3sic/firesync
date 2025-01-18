@@ -21,5 +21,12 @@ namespace FireSync.Services.Interfaces
         /// </summary>
         /// <returns>A task representing the asynchronous operation, containing a boolean value indicating if there is only one admin user.</returns>
         Task<bool> IsOnlyOneAdminUserAsync();
+
+        /// <summary>
+        /// Gets the initials of the user.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <returns>A string representing the initials of the user.</returns>
+        Task<string> GetUserInitialsAsync(string userId);
     }
 }
