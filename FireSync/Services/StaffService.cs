@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FireSync.Common;
 using FireSync.DTOs;
 using FireSync.DTOs.Users;
 using FireSync.Enums;
@@ -73,6 +74,43 @@ namespace FireSync.Services
             }
 
             return userOutputDtos;
+        }
+
+        /// <inheritdoc/>
+        public async Task<(IEnumerable<UserOutputDto>, PaginationMetadata)> GetPagedFirefightersAsync(int pageNumber, int pageSize = 10)
+        {
+            var Users = await userManager.Users.ToListAsync();
+            var firefighters = new List<UserOutputDto>();
+            foreach (var user in Users)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+
+                if (!roles.Contains(Roles.Firefighter.ToString()))
+                {
+                    continue;
+                }
+
+                var userOutputDto = new UserOutputDto
+                {
+                    Id = Guid.Parse(user.Id),
+                    Email = user.Email ?? string.Empty,
+                    Roles = roles.ToList(),
+                    FirstName = user.FirstName ?? string.Empty,
+                    LastName = user.LastName ?? string.Empty,
+                };
+
+                firefighters.Add(userOutputDto);
+            }
+
+            var totalItemCount = firefighters.Count;
+
+            var pagedFirefighters = firefighters
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+            var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
+
+            return (pagedFirefighters, paginationMetadata);
         }
 
         /// <inheritdoc/>

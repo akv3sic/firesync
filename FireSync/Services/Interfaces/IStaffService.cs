@@ -1,4 +1,5 @@
-﻿using FireSync.DTOs;
+﻿using FireSync.Common;
+using FireSync.DTOs;
 using FireSync.DTOs.Users;
 using Microsoft.AspNetCore.Identity;
 
@@ -15,6 +16,14 @@ namespace FireSync.Services.Interfaces
         /// Gets all firefighters.
         /// </summary>
         Task<List<UserOutputDto>> GetFirefightersAsync();
+
+        /// <summary>
+        /// Gets paginated list of firefighters.
+        /// </summary>
+        /// <param name="pageNumber">Current page number.</param>
+        /// <param name="pageSize">Number of items per page.</param>
+        /// <returns>Tuple containing a list of UserOutputDto and PaginationMetadata.</returns>
+        Task<(IEnumerable<UserOutputDto>, PaginationMetadata)> GetPagedFirefightersAsync(int pageNumber, int pageSize = 10);
 
         /// <summary>
         /// Gets all staff members except firefighters.
