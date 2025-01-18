@@ -1,4 +1,5 @@
-﻿using FireSync.DTOs;
+﻿using FireSync.Common;
+using FireSync.DTOs;
 
 namespace FireSync.Services.Interfaces
 {
@@ -7,8 +8,16 @@ namespace FireSync.Services.Interfaces
         /// <summary>
         /// Gets the users.
         /// </summary>
-        /// <returns>A list of <see cref="UserDto"/> instances.</returns>
+        /// <returns>A list of <see cref="UserOutputDto"/> instances.</returns>
         Task<List<UserOutputDto>> GetUsersAsync();
+
+        /// <summary>
+        /// Gets the paged users.
+        /// </summary>
+        /// <param name="pageNumber">The current page number.</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <returns>A tuple containing the list of users and pagination metadata.</returns>
+        Task<(IEnumerable<UserOutputDto>, PaginationMetadata)> GetPagedUsersAsync(int pageNumber, int pageSize = 10);
 
         /// <summary>
         /// Gets all admin users.

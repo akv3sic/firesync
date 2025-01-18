@@ -1,4 +1,5 @@
-﻿using FireSync.DTOs;
+﻿using FireSync.Common;
+using FireSync.DTOs;
 using FireSync.Enums;
 using FireSync.Models;
 using FireSync.Services.Interfaces;
@@ -46,6 +47,38 @@ namespace FireSync.Services
             }
 
             return userOutputDtos;
+        }
+
+        /// <inheritdoc/>
+        public async Task<(IEnumerable<UserOutputDto>, PaginationMetadata)> GetPagedUsersAsync(int pageNumber, int pageSize = 10)
+        {
+            var users = await userManager.Users.ToListAsync();
+            var userDtos = new List<UserOutputDto>();
+
+            foreach (var user in users)
+            {
+                var roles = await userManager.GetRolesAsync(user);
+                var userDto = new UserOutputDto
+                {
+                    Id = Guid.Parse(user.Id),
+                    Email = user.Email ?? string.Empty,
+                    Roles = roles.ToList(),
+                    FirstName = user.FirstName ?? string.Empty,
+                    LastName = user.LastName ?? string.Empty,
+                };
+
+                userDtos.Add(userDto);
+            }
+
+            var totalItemCount = userDtos.Count;
+
+            var pagedUsers = userDtos
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+            var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
+
+            return (pagedUsers, paginationMetadata);
         }
 
         /// <inheritdoc/>

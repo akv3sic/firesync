@@ -7,6 +7,7 @@
 @inject IDialogService DialogService
 @inject NavigationManager NavigationManager
 
+@using FireSync.Common
 @using FireSync.Components.Shared
 @using FireSync.DTOs
 @using FireSync.Enums
@@ -21,7 +22,7 @@
                 <MudPaper Elevation="0" Padding="0" Class="mb-4">
                     <MudGrid>
                         <MudItem xs="12" sm="6" md="6" lg="6" xl="6" Class="d-flex align-center gap-15">
-                            <MudText Typo="Typo.h5">Pregled korisnika (@(users?.Count ?? 0))</MudText>
+                            <MudText Typo="Typo.h5">Pregled korisnika (@(paginationMetadata?.TotalItemCount ?? 0))</MudText>
                             @if (selectedUsers.Count > 0)
                             {
                                 <MudPaper Elevation="2" Class="py-1 px-2">
@@ -44,7 +45,6 @@
                         <PropertyColumn Property="x => x.FirstName" Title="Ime" />
                         <PropertyColumn Property="x => x.LastName" Title="Prezime" />
                         <PropertyColumn Property="x => x.Email" Title="Email" />
-                        <!-- roles -->
                         <TemplateColumn Title="Uloge">
                             <CellTemplate Context="user">
                                 @foreach (var role in user.Item.Roles)
@@ -55,6 +55,10 @@
                         </TemplateColumn>
                     </Columns>
                 </MudDataGrid>
+
+                <div class="d-flex justify-center my-4">
+                    <MudPagination Count="totalPages" @bind-Selected="currentPage" />
+                </div>
             </MudItem>
         </MudGrid>
     </Authorized>
@@ -71,9 +75,35 @@
     private List<UserOutputDto> users = new List<UserOutputDto>();
     private HashSet<UserOutputDto> selectedUsers = new HashSet<UserOutputDto>();
 
+    private PaginationMetadata paginationMetadata;
+    private int totalUsersCount => paginationMetadata?.TotalItemCount ?? 0;
+    private int totalPages => paginationMetadata?.TotalPageCount ?? 0;
+    private int _currentPage = 1;
+
+    private int currentPage
+    {
+        get => _currentPage;
+        set
+        {
+            if (_currentPage != value)
+            {
+                _currentPage = value;
+                _ = LoadUsers();
+            }
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        var result = await UserService.GetPagedUsersAsync(currentPage);
+        users = result.Item1.ToList();
+        paginationMetadata = result.Item2;
+        StateHasChanged();
     }
 
     void RowClicked(DataGridRowClickEventArgs<UserOutputDto> args)
@@ -84,12 +114,6 @@
     private void GoToUserDetailsPage(Guid userId)
     {
         NavigationManager.NavigateTo($"/users/{userId}");
-    }
-
-    private async Task LoadUsers()
-    {
-        users = await UserService.GetUsersAsync();
-        StateHasChanged();
     }
 
     private async void OpenAddNewUserDialog()
