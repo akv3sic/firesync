@@ -26,7 +26,7 @@
                             @if (selectedVehicles.Count > 0)
                             {
                                 <MudPaper Elevation="2" Class="py-1 px-2">
-                                    <MudIconButton Icon="@Icons.Material.Outlined.Remove" Color="Color.Inherit" OnClick="@(() => DeleteVehicle(selectedVehicles.First()))" />
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Inherit" OnClick="@(() => DeleteVehicle(selectedVehicles.First()))" />
                                 </MudPaper>
                             }
                         </MudItem>
