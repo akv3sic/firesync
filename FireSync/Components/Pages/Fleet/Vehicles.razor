@@ -42,7 +42,7 @@
                 }
                 else
                 {
-                    <MudDataGrid T="VehicleOutputDto" Items="vehicles" Filterable="false" SortMode="@SortMode.Single" Groupable="false" MultiSelection="false" FooterClass="d-none"
+                    <MudDataGrid T="VehicleOutputDto" Items="vehicles" Filterable="false" SortMode="@SortMode.Single" Groupable="false" MultiSelection="true" FooterClass="d-none"
                                  @bind-SelectedItems="selectedVehicles" Hover="true" RowClick="@RowClicked" RowClass="cursor-pointer">
                         <Columns>
                             <SelectColumn T="VehicleOutputDto" />
@@ -109,19 +109,39 @@
 
     private async Task DeleteVehicle(VehicleOutputDto vehicle)
     {
-        var confirm = await DialogService.ShowMessageBox("Potvrda", $"Jeste li sigurni da želite izbrisati vozilo {vehicle.LicensePlate}?", yesText: "Da", noText: "Ne");
-        if (confirm == true)
+        string messageText = selectedVehicles.Count > 1
+            ? $"Jeste li sigurni da želite obrisati {selectedVehicles.Count} vozila?"
+            : "Jeste li sigurni da želite obrisati ovo vozilo?";
+
+        var parameters = new DialogParameters
         {
-            var result = await VehicleService.DeleteVehicleAsync(vehicle.Id);
-            if (result)
-            {
-                Snackbar.Add("Uspješno izbrisano.", Severity.Success);
-                await LoadVehicles();
+            { "Message", messageText },
+            { "ConfirmText", "Obriši" },
+            { "CancelText", "Odustani" },
+            { "SuccessMessage", selectedVehicles.Count > 1
+                ? "Vozila uspješno obrisana."
+                : "Vozilo uspješno obrisano." },
+            { "ErrorMessage", "Došlo je do greške prilikom brisanja vozila." },
+            { "DeleteAction", new Func<Task>(async () =>
+                {
+                    if (selectedVehicles.Count > 1)
+                    {
+                        foreach (var item in selectedVehicles)
+                        {
+                            await VehicleService.DeleteVehicleAsync(item.Id);
+                        }
+                    }
+                    else
+                    {
+                        await VehicleService.DeleteVehicleAsync(vehicle.Id);
+                    }
+                    await LoadVehicles();
+                    selectedVehicles.Clear();
+                })
             }
-            else
-            {
-                Snackbar.Add("Došlo je do greške prilikom brisanja.", Severity.Error);
-            }
-        }
+        };
+
+        var dialog = DialogService.Show<ConfirmationDialog>("Potvrda brisanja", parameters);
+        await dialog.Result;
     }
 }
