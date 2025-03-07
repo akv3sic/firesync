@@ -21,7 +21,7 @@
                 <MudPaper Elevation="0" Padding="0" Class="mb-4">
                     <MudGrid>
                         <MudItem xs="12" sm="6" md="6" lg="6" xl="6" Class="d-flex align-center gap-15">
-                            <MudText Typo="Typo.h5">Pregled vatrogasaca (@(paginationMetadata?.TotalItemCount ?? 0))</MudText>
+                            <MudText Typo="Typo.h5">Pregled vatrogasaca @((paginationMetadata?.TotalItemCount ?? 0) > 0 ? $"({paginationMetadata?.TotalItemCount ?? 0})" : "")</MudText>
                             @if (selectedFirefighters.Count > 0)
                             {
                                 <MudPaper Elevation="2" Class="py-1 px-2">
