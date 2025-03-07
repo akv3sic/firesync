@@ -41,5 +41,18 @@ namespace FireSync.Repositories
             await context.Interventions.AddAsync(intervention);
             await context.SaveChangesAsync();
         }
+
+        /// <inheritdoc />
+        public async Task DeleteAsync(Guid interventionId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+            var intervention = await context.Interventions.FindAsync(interventionId);
+
+            if (intervention != null)
+            {
+                context.Interventions.Remove(intervention);
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }

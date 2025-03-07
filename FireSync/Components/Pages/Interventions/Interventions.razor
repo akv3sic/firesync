@@ -41,15 +41,17 @@
             }
             else
             {
-            <MudDataGrid T="InterventionOutputDto" Items="interventions" Filterable="false" SortMode="@SortMode.Single" Groupable="false" MultiSelection="false" FooterClass="d-none"
-                         @bind-SelectedItems="selectedInterventions" Hover="true" RowClick="@RowClicked" RowClass="cursor-pointer">
-                <Columns>
+            <MudDataGrid T="InterventionOutputDto" Items="interventions" Filterable="false" 
+                         SortMode="@SortMode.Single" Groupable="false" MultiSelection="true" 
+                         FooterClass="d-none" @bind-SelectedItems="selectedInterventions" 
+                         Hover="true" RowClick="@RowClicked" RowClass="cursor-pointer">
+                                         <Columns>
                     <SelectColumn T="InterventionOutputDto" />
                     <PropertyColumn Property="x => x.Title" Title="Naslov" />
                     <PropertyColumn Property="x => x.Description" Title="Opis" />
                     <PropertyColumn Property="x => x.StartTime" Title="Početno vrijeme" />
                 </Columns>
-            </MudDataGrid>
+                    </MudDataGrid>
 
             @* Pagination *@
             <div class="d-flex justify-center my-4">
@@ -125,8 +127,41 @@
         }
     }
 
-    private async void DeleteIntervention(InterventionOutputDto intervention)
+    private async Task DeleteIntervention(InterventionOutputDto intervention)
     {
-        // TODO: Implement deletion of intervention
+        string messageText = selectedInterventions.Count > 1
+            ? $"Jeste li sigurni da želite obrisati {selectedInterventions.Count} intervencija?"
+            : "Jeste li sigurni da želite obrisati ovu intervenciju?";
+
+        var parameters = new DialogParameters
+        {
+            { "Message", messageText },
+            { "ConfirmText", "Obriši" },
+            { "CancelText", "Odustani" },
+            { "SuccessMessage", selectedInterventions.Count > 1
+                ? "Intervencije uspješno obrisane."
+                : "Intervencija uspješno obrisana." },
+            { "ErrorMessage", "Došlo je do greške prilikom brisanja intervencije." },
+            { "DeleteAction", new Func<Task>(async () =>
+                {
+                    if (selectedInterventions.Count > 1)
+                    {
+                        foreach (var item in selectedInterventions)
+                        {
+                            await InterventionService.DeleteInterventionAsync(item.Id);
+                        }
+                    }
+                    else
+                    {
+                        await InterventionService.DeleteInterventionAsync(intervention.Id);
+                    }
+                    await LoadInterventions();
+                    selectedInterventions.Clear();
+                })
+            }
+        };
+
+        var dialog = DialogService.Show<ConfirmationDialog>("Potvrda brisanja", parameters);
+        await dialog.Result;
     }
 }

@@ -44,5 +44,11 @@ namespace FireSync.Services
 
             await _interventionRepository.AddAsync(entity);
         }
+
+        /// <inheritdoc />
+        public async Task DeleteInterventionAsync(Guid interventionId)
+        {
+            await _interventionRepository.DeleteAsync(interventionId);
+        }
     }
 }

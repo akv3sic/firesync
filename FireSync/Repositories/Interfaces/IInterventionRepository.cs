@@ -18,5 +18,12 @@ namespace FireSync.Repositories.Interfaces
         /// <param name="intervention">The intervention entity.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task AddAsync(Intervention intervention);
+
+        /// <summary>
+        /// Deletes an intervention from the database.
+        /// </summary>
+        /// <param name="interventionId">The ID of the intervention to delete.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        Task DeleteAsync(Guid interventionId);
     }
 }
