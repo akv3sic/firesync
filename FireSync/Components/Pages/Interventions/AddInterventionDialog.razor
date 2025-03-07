@@ -31,7 +31,8 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new MudDialogInstance();
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
 
     private InterventionInputDto newIntervention = new InterventionInputDto();
     private MudForm form;

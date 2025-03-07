@@ -30,7 +30,8 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new MudDialogInstance();
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
 
     private VehicleInputDto newVehicle = new VehicleInputDto();
     private MudForm form;

@@ -38,7 +38,8 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = new MudDialogInstance();
+    [CascadingParameter] 
+    private IMudDialogInstance MudDialog { get; set; }
 
     private UserInputDto newUser = new UserInputDto();
     private List<string> selectedRolesString = new List<string>();
