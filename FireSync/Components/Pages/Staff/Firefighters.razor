@@ -31,6 +31,14 @@
                         </MudItem>
                     </MudGrid>
                 </MudPaper>
+                @if (firefighters == null || !firefighters.Any())
+                {
+                    <MudAlert Severity="Severity.Info" Elevation="0" Icon="@Icons.Material.Filled.Info">
+                        Nema vatrogasaca za prikaz.
+                    </MudAlert>
+                }
+                else
+                {
                 <MudDataGrid T="UserOutputDto" Items="firefighters" Filterable="false" SortMode="@SortMode.Single" Groupable="false" MultiSelection="false" FooterClass="d-none"
                              @bind-SelectedItems="selectedFirefighters" Hover="true" RowClick="@RowClicked" RowClass="cursor-pointer">
                     <Columns>
@@ -52,7 +60,7 @@
                 <div class="d-flex justify-center my-4">
                     <MudPagination Count="pagesCount" @bind-Selected="currentPage" />
                 </div>
-
+                }
             </MudItem>
         </MudGrid>
     </Authorized>
