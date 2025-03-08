@@ -33,7 +33,7 @@ namespace FireSync.Services
             return _mapper.Map<IEnumerable<InterventionTypeOutputDto>>(interventionTypes);
         }
 
-        public async Task<InterventionTypeOutputDto?> GetInterventionTypeByIdAsync(int id)
+        public async Task<InterventionTypeOutputDto?> GetInterventionTypeByIdAsync(Guid id)
         {
             var interventionType = await _interventionTypeRepository.GetByIdAsync(id);
             return interventionType != null ? _mapper.Map<InterventionTypeOutputDto>(interventionType) : null;
@@ -51,7 +51,7 @@ namespace FireSync.Services
             await _interventionTypeRepository.UpdateAsync(entity);
         }
 
-        public async Task DeleteInterventionTypeAsync(int interventionTypeId)
+        public async Task DeleteInterventionTypeAsync(Guid interventionTypeId)
         {
             await _interventionTypeRepository.DeleteAsync(interventionTypeId);
         }

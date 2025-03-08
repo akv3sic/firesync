@@ -7,9 +7,9 @@ namespace FireSync.Services.Interfaces
     {
         Task<(IEnumerable<InterventionTypeOutputDto> InterventionTypes, PaginationMetadata Pagination)> GetPagedInterventionTypesAsync(int pageNumber, int pageSize = 10);
         Task<IEnumerable<InterventionTypeOutputDto>> GetAllInterventionTypesAsync();
-        Task<InterventionTypeOutputDto?> GetInterventionTypeByIdAsync(int id);
+        Task<InterventionTypeOutputDto?> GetInterventionTypeByIdAsync(Guid id);
         Task AddInterventionTypeAsync(InterventionTypeInputDto interventionType);
         Task UpdateInterventionTypeAsync(InterventionTypeUpdateDto interventionType);
-        Task DeleteInterventionTypeAsync(int interventionTypeId);
+        Task DeleteInterventionTypeAsync(Guid interventionTypeId);
     }
 }

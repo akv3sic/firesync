@@ -1,0 +1,168 @@
+﻿@page "/intervention-types"
+
+@attribute [StreamRendering]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@inject IInterventionTypeService InterventionTypeService
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+
+@using FireSync.Components.Shared
+@using FireSync.DTOs.InterventionTypes
+@using FireSync.Enums
+@using FireSync.Services.Interfaces
+
+<PageTitle>Tipovi intervencija</PageTitle>
+
+<AuthorizeView Roles="@(nameof(Roles.Admin))">
+    <Authorized Context="authContext">
+        <MudGrid>
+            <MudItem xs="12" sm="12" md="12" lg="12" xl="12" Class="mx-auto">
+                <MudPaper Elevation="0" Padding="0" Class="mb-4">
+                    <MudGrid>
+                        <MudItem xs="12" sm="6" md="6" lg="6" xl="6" Class="d-flex align-center gap-15">
+                            <MudText Typo="Typo.h5">Pregled tipova intervencija @((paginationMetadata?.TotalItemCount ?? 0) > 0 ? $"({paginationMetadata?.TotalItemCount ?? 0})" : "")</MudText>
+                            @if (selectedInterventionTypes.Count > 0)
+                            {
+                                <MudPaper Elevation="2" Class="py-1 px-2">
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Inherit" OnClick="@(() => DeleteInterventionType(selectedInterventionTypes.First()))" />
+                                </MudPaper>
+                            }
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+
+                @if ((interventionTypes == null || interventionTypes.Count == 0))
+                {
+                    <MudAlert Severity="Severity.Info" Elevation="0" Icon="@Icons.Material.Filled.Info">
+                        Nema tipova intervencija za prikaz.
+                    </MudAlert>
+                }
+                else
+                {
+                    <MudDataGrid T="InterventionTypeOutputDto" Items="interventionTypes" Filterable="false"
+                                 SortMode="@SortMode.Single" Groupable="false" MultiSelection="true"
+                                 FooterClass="d-none" @bind-SelectedItems="selectedInterventionTypes"
+                                 Hover="true" RowClick="@RowClicked" RowClass="cursor-pointer">
+                        <Columns>
+                            <SelectColumn T="InterventionTypeOutputDto" />
+                            <PropertyColumn Property="x => x.Name" Title="Naziv" />
+                            <PropertyColumn Property="x => x.Description" Title="Opis" />
+                            <TemplateColumn Title="Boja">
+                                <CellTemplate Context="cellContext">
+                                    <div class="d-flex align-center">
+                                        <div class="color-sample mr-2" style="background-color: @cellContext.Item.ColorCode; width: 24px; height: 24px; border-radius: 4px;"></div>
+                                        <span>@cellContext.Item.ColorCode</span>
+                                    </div>
+                                </CellTemplate>
+                            </TemplateColumn>
+                            <PropertyColumn Property="x => x.CreatedAt" Title="Datum kreiranja" Format="dd.MM.yyyy. HH:mm" />
+                        </Columns>
+                    </MudDataGrid>
+
+                    <div class="d-flex justify-center my-4">
+                        <MudPagination Count="pagesCount" @bind-Selected="currentPage" />
+                    </div>
+                }
+            </MudItem>
+        </MudGrid>
+    </Authorized>
+    <NotAuthorized>
+        <UnauthorizedAlert />
+    </NotAuthorized>
+</AuthorizeView>
+
+<MudElement Class="fab-wrapper">
+    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenAddNewInterventionTypeDialog" Size="Size.Medium" />
+</MudElement>
+
+@code {
+    private List<InterventionTypeOutputDto> interventionTypes = new List<InterventionTypeOutputDto>();
+    private HashSet<InterventionTypeOutputDto> selectedInterventionTypes = new HashSet<InterventionTypeOutputDto>();
+
+    #region Pagination
+    private PaginationMetadata paginationMetadata;
+    private int pagesCount => paginationMetadata?.TotalPageCount ?? 0;
+    private int _currentPage = 1;
+
+    private int currentPage
+    {
+        get => _currentPage;
+        set
+        {
+            if (_currentPage != value)
+            {
+                _currentPage = value;
+                LoadInterventionTypes();
+            }
+        }
+    }
+    #endregion
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInterventionTypes();
+    }
+
+    private async Task LoadInterventionTypes()
+    {
+        var result = await InterventionTypeService.GetPagedInterventionTypesAsync(currentPage);
+        interventionTypes = result.InterventionTypes.ToList();
+        paginationMetadata = result.Pagination;
+        StateHasChanged();
+    }
+
+    private void RowClicked(DataGridRowClickEventArgs<InterventionTypeOutputDto> args)
+    {
+        // No action on row click for now, will implement edit later
+    }
+
+    private async void OpenAddNewInterventionTypeDialog()
+    {
+        var dialog = DialogService.Show<AddInterventionTypeDialog>("Dodaj novi tip intervencije");
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            await LoadInterventionTypes();
+        }
+    }
+
+    private async Task DeleteInterventionType(InterventionTypeOutputDto interventionType)
+    {
+        string messageText = selectedInterventionTypes.Count > 1
+            ? $"Jeste li sigurni da želite obrisati {selectedInterventionTypes.Count} tipova intervencija?"
+            : "Jeste li sigurni da želite obrisati ovaj tip intervencije?";
+
+        var parameters = new DialogParameters
+        {
+            { "Message", messageText },
+            { "ConfirmText", "Obriši" },
+            { "CancelText", "Odustani" },
+            { "SuccessMessage", selectedInterventionTypes.Count > 1
+                ? "Tipovi intervencija uspješno obrisani."
+                : "Tip intervencije uspješno obrisan." },
+            { "ErrorMessage", "Došlo je do greške prilikom brisanja tipa intervencije." },
+            { "DeleteAction", new Func<Task>(async () =>
+                {
+                    if (selectedInterventionTypes.Count > 1)
+                    {
+                        foreach (var item in selectedInterventionTypes)
+                        {
+                            await InterventionTypeService.DeleteInterventionTypeAsync(item.Id);
+                        }
+                    }
+                    else
+                    {
+                        await InterventionTypeService.DeleteInterventionTypeAsync(interventionType.Id);
+                    }
+                    await LoadInterventionTypes();
+                    selectedInterventionTypes.Clear();
+                })
+            }
+        };
+
+        var dialog = DialogService.Show<ConfirmationDialog>("Potvrda brisanja", parameters);
+        await dialog.Result;
+    }
+}

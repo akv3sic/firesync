@@ -6,9 +6,9 @@ namespace FireSync.Repositories.Interfaces
     {
         Task<(List<InterventionType> InterventionTypes, int TotalItemCount)> GetPagedInterventionTypesAsync(int pageNumber, int pageSize);
         Task<List<InterventionType>> GetAllInterventionTypesAsync();
-        Task<InterventionType?> GetByIdAsync(int id);
+        Task<InterventionType?> GetByIdAsync(Guid id);
         Task AddAsync(InterventionType interventionType);
         Task UpdateAsync(InterventionType interventionType);
-        Task DeleteAsync(int interventionTypeId);
+        Task DeleteAsync(Guid interventionTypeId);
     }
 }

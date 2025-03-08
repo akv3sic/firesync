@@ -33,7 +33,7 @@ namespace FireSync.Repositories
             return await context.InterventionTypes.OrderBy(t => t.Name).ToListAsync();
         }
 
-        public async Task<InterventionType?> GetByIdAsync(int id)
+        public async Task<InterventionType?> GetByIdAsync(Guid id)
         {
             using var context = _contextFactory.CreateDbContext();
             return await context.InterventionTypes.FindAsync(id);
@@ -53,7 +53,7 @@ namespace FireSync.Repositories
             await context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int interventionTypeId)
+        public async Task DeleteAsync(Guid interventionTypeId)
         {
             using var context = _contextFactory.CreateDbContext();
             var interventionType = await context.InterventionTypes.FindAsync(interventionTypeId);

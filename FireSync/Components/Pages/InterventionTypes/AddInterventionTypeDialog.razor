@@ -1,0 +1,67 @@
+﻿@using FireSync.DTOs.InterventionTypes
+@using FireSync.Services.Interfaces
+@using MudBlazor.Utilities
+@inject ISnackbar Snackbar
+@inject IInterventionTypeService InterventionTypeService
+
+<MudDialog Class="responsive-dialog-width">
+    <DialogContent>
+        <MudForm @ref="form" Model="@newInterventionType">
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField Label="Naziv" @bind-Value="newInterventionType.Name" Required="true" RequiredError="Naziv je obavezan" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField Label="Opis" @bind-Value="newInterventionType.Description" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudColorPicker Label="Boja" @bind-Value="selectedColor" DisableToolbar="false" DisableColorField="false" DisablePreview="false" DisableSliders="false" DisableInputs="false" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">Odustani</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="Submit">Spremi</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    private IMudDialogInstance MudDialog { get; set; }
+
+    private InterventionTypeInputDto newInterventionType = new InterventionTypeInputDto();
+    private MudForm form;
+    private MudColor selectedColor;
+
+    protected override void OnInitialized()
+    {
+        selectedColor = new MudColor("#3B82F6");
+    }
+
+    private async Task Submit()
+    {
+        await form.Validate();
+        if (form.IsValid)
+        {
+            try
+            {
+                // Convert MudColor to hex string
+                newInterventionType.ColorCode = selectedColor.Value;
+
+                await InterventionTypeService.AddInterventionTypeAsync(newInterventionType);
+                Snackbar.Add("Tip intervencije uspješno dodan.", Severity.Success);
+                MudDialog.Close(DialogResult.Ok(true));
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add("Došlo je do greške prilikom dodavanja tipa intervencije.", Severity.Error);
+            }
+        }
+    }
+
+    private void Cancel()
+    {
+        MudDialog.Cancel();
+    }
+}
