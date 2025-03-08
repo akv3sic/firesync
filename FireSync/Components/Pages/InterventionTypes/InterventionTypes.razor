@@ -8,6 +8,7 @@
 @inject NavigationManager NavigationManager
 
 @using FireSync.Components.Shared
+@using FireSync.Constants
 @using FireSync.DTOs.InterventionTypes
 @using FireSync.Enums
 @using FireSync.Services.Interfaces
@@ -47,7 +48,11 @@
                         <Columns>
                             <SelectColumn T="InterventionTypeOutputDto" />
                             <PropertyColumn Property="x => x.Name" Title="Naziv" />
-                            <PropertyColumn Property="x => x.Description" Title="Opis" />
+                            <TemplateColumn Title="Opis">
+                                <CellTemplate Context="cellContext">
+                                    <span>@(string.IsNullOrWhiteSpace(cellContext.Item.Description) ? GlobalConstants.NotApplicable : cellContext.Item.Description)</span>
+                                </CellTemplate>
+                            </TemplateColumn>
                             <TemplateColumn Title="Boja">
                                 <CellTemplate Context="cellContext">
                                     <div class="d-flex align-center">
