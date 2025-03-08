@@ -3,7 +3,7 @@
 
 @using Microsoft.Extensions.Localization
 
-<MudNavMenu>
+<MudNavMenu Color="Color.Primary" Bordered="false" Class="px-2">
     <MudElement Class="d-flex align-center pl-5 py-3">
         <a href="/" class="link d-flex align-end">
             <img src="/favicon-48x48.png" alt="FireSync Logo" />
@@ -13,19 +13,15 @@
 
     <MudNavLink Icon="@Icons.Material.Filled.Dashboard" Href="" Match="NavLinkMatch.All">Pregled</MudNavLink>
 
-    <MudNavGroup Title="Osoblje" Icon="@Icons.Material.Filled.Groups" Expanded="true">
+    <MudNavGroup Title="Osoblje" Icon="@Icons.Material.Filled.Groups" Expanded="false">
         <MudNavLink Href="/firefighters">Vatrogasci</MudNavLink>
         <MudNavLink Href="/other-staff">Ostalo osoblje</MudNavLink>
     </MudNavGroup>
 
     <MudNavLink Icon="@Icons.Material.Filled.Emergency" Href="/interventions">Intervencije</MudNavLink>
-
     <MudNavLink Icon="@Icons.Material.Filled.FireTruck" Href="/fleet">Vozni park</MudNavLink>
-
     <MudNavLink Icon="@Icons.Material.Filled.ManageAccounts" Href="/users">Korisnici</MudNavLink>
-
     <MudNavLink Icon="@Icons.Material.Filled.Settings" Href="/settings">Postavke</MudNavLink>
-
 </MudNavMenu>
 
 @code {
