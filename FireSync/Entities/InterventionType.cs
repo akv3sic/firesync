@@ -1,30 +1,22 @@
 ﻿using FireSync.Entities.Common;
 using FireSync.Entities.Common.Interfaces;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FireSync.Entities
 {
-    public class Intervention : BaseEntity, IAuditableEntity, IDeletableEntity
+    public class InterventionType : BaseEntity, IAuditableEntity, IDeletableEntity
     {
         [Required]
-        [MaxLength(200)]
-        public string Title { get; set; } = string.Empty;
-
-        [Required]
-        public DateTime? StartTime { get; set; }
-
-        public DateTime? EndTime { get; set; }
+        [MaxLength(100)]
+        public string Name { get; set; } = string.Empty;
 
         [MaxLength(500)]
         public string Description { get; set; } = string.Empty;
 
-        public Guid? InterventionTypeId { get; set; }
+        [MaxLength(20)]
+        public string ColorCode { get; set; } = string.Empty;
 
-        [ForeignKey("InterventionTypeId")]
-        public InterventionType? InterventionType { get; set; }
-
-        public ICollection<ApplicationUserIntervention> ApplicationUserInterventions { get; set; } = new List<ApplicationUserIntervention>();
+        public ICollection<Intervention> Interventions { get; set; } = new List<Intervention>();
 
         /// <inheritdoc/>
         public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
