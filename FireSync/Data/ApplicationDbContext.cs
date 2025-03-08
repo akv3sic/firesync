@@ -22,6 +22,8 @@ namespace FireSync.Data
 
         public DbSet<Intervention> Interventions { get; set; }
 
+        public DbSet<InterventionType> InterventionTypes { get; set; }
+
         public DbSet<ApplicationUserIntervention> ApplicationUserInterventions { get; set; }
 
         public DbSet<Vehicle> Vehicles { get; set; }
