@@ -1,9 +1,11 @@
 ﻿@using FireSync.DTOs.Interventions
+@using FireSync.DTOs.InterventionTypes
 @using FireSync.Services
 @using FireSync.Services.Interfaces
 
 @inject ISnackbar Snackbar
 @inject IInterventionService InterventionService
+@inject IInterventionTypeService InterventionTypeService
 
 <MudDialog Class="responsive-dialog-width">
     <DialogContent>
@@ -14,6 +16,19 @@
                 </MudItem>
                 <MudItem xs="12">
                     <MudTextField Label="Opis" @bind-Value="newIntervention.Description" FullWidth Immediate="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudSelect T="Guid?" Label="Tip intervencije" @bind-Value="newIntervention.InterventionTypeId" FullWidth>
+                        @if (interventionTypes != null)
+                        {
+                            @foreach (var type in interventionTypes)
+                            {
+                                <MudSelectItem T="Guid?" Value="@type.Id">
+                                    @type.Name
+                                </MudSelectItem>
+                            }
+                        }
+                    </MudSelect>
                 </MudItem>
                 <MudItem xs="12" md="6">
                     <MudTextField T="DateTime?" Format="s" Label="Početno vrijeme" InputType="InputType.DateTimeLocal" @bind-Value="newIntervention.StartTime" FullWidth Immediate="true" />
@@ -36,6 +51,24 @@
 
     private InterventionInputDto newIntervention = new InterventionInputDto();
     private MudForm form;
+    private IEnumerable<InterventionTypeOutputDto> interventionTypes = new List<InterventionTypeOutputDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInterventionTypes();
+    }
+
+    private async Task LoadInterventionTypes()
+    {
+        try
+        {
+            interventionTypes = await InterventionTypeService.GetAllInterventionTypesAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Došlo je do greške prilikom učitavanja tipova intervencija.", Severity.Error);
+        }
+    }
 
     private async Task Submit()
     {

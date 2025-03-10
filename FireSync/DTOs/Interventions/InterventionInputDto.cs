@@ -12,6 +12,9 @@ namespace FireSync.DTOs.Interventions
         public string Description { get; set; } = string.Empty;
 
         public DateTime? StartTime { get; set; }
+
         public DateTime? EndTime { get; set; }
+
+        public Guid? InterventionTypeId { get; set; }
     }
 }
