@@ -26,6 +26,7 @@ namespace FireSync.Repositories
             var totalItemCount = await context.Interventions.CountAsync();
 
             var interventions = await context.Interventions
+                .Include(i => i.InterventionType)
                 .OrderByDescending(i => i.StartTime)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

@@ -24,16 +24,11 @@ namespace FireSync.Services
         }
 
         /// <inheritdoc />
-        public async Task<(IEnumerable<InterventionOutputDto> Interventions, PaginationMetadata Pagination)> GetAllInterventionsAsync(int pageNumber, int pageSize)
+        public async Task<(IEnumerable<InterventionOutputDto> Interventions, PaginationMetadata Pagination)> GetAllInterventionsAsync(int pageNumber, int pageSize = 10)
         {
             var (interventions, totalItemCount) = await _interventionRepository.GetPagedInterventionsAsync(pageNumber, pageSize);
-
-            // Map interventions to DTOs
             var interventionDtos = _mapper.Map<IEnumerable<InterventionOutputDto>>(interventions);
-
-            // Create pagination metadata
             var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
-
             return (interventionDtos, paginationMetadata);
         }
 

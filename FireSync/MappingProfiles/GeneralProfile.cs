@@ -12,7 +12,10 @@ namespace FireSync.MappingProfiles
     {
         public GeneralProfile()
         {
-            CreateMap<Intervention, InterventionOutputDto>().ReverseMap();
+            CreateMap<Intervention, InterventionOutputDto>()
+                .ForMember(dest => dest.InterventionTypeName, opt => opt.MapFrom(src =>
+                    src.InterventionType != null ? src.InterventionType.Name : string.Empty))
+                .ReverseMap();
             CreateMap<InterventionInputDto, Intervention>()
                 .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.StartTime.HasValue ? DateTime.SpecifyKind(src.StartTime.Value, DateTimeKind.Utc) : (DateTime?)null))
                 .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.EndTime.HasValue ? DateTime.SpecifyKind(src.EndTime.Value, DateTimeKind.Utc) : (DateTime?)null));

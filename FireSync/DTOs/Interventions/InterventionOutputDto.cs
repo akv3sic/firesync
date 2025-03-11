@@ -11,5 +11,9 @@
         public DateTime? EndTime { get; set; }
 
         public string Description { get; set; } = string.Empty;
+
+        public Guid? InterventionTypeId { get; set; }
+
+        public string InterventionTypeName { get; set; } = string.Empty;
     }
 }
