@@ -16,5 +16,7 @@ namespace FireSync.DTOs.Interventions
         public DateTime? EndTime { get; set; }
 
         public Guid? InterventionTypeId { get; set; }
+
+        public List<Guid> FirefighterIds { get; set; } = new List<Guid>();
     }
 }

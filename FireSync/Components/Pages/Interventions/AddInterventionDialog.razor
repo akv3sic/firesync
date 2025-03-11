@@ -1,11 +1,15 @@
-﻿@using FireSync.DTOs.Interventions
+﻿@using FireSync.Components.Shared
+@using FireSync.DTOs
+@using FireSync.DTOs.Interventions
 @using FireSync.DTOs.InterventionTypes
+@using FireSync.DTOs.Users
 @using FireSync.Services
 @using FireSync.Services.Interfaces
 
 @inject ISnackbar Snackbar
 @inject IInterventionService InterventionService
 @inject IInterventionTypeService InterventionTypeService
+@inject IStaffService StaffService
 
 <MudDialog Class="responsive-dialog-width">
     <DialogContent>
@@ -36,6 +40,14 @@
                 <MudItem xs="12" md="6">
                     <MudTextField T="DateTime?" Format="s" Label="Završno vrijeme" InputType="InputType.DateTimeLocal" @bind-Value="newIntervention.EndTime" FullWidth Immediate="true" />
                 </MudItem>
+
+                <MudItem xs="12">
+                    <FirefighterSelector 
+                        AvailableFirefighters="allFirefighters"
+                        SelectedFirefighters="selectedFirefighters"
+                        SelectedFirefightersChanged="OnSelectedFirefightersChanged"
+                        IsLoading="isLoadingFirefighters" />
+                </MudItem>
             </MudGrid>
         </MudForm>
     </DialogContent>
@@ -52,10 +64,14 @@
     private InterventionInputDto newIntervention = new InterventionInputDto();
     private MudForm form;
     private IEnumerable<InterventionTypeOutputDto> interventionTypes = new List<InterventionTypeOutputDto>();
+    private List<UserOutputDto> allFirefighters = new List<UserOutputDto>();
+    private List<UserOutputDto> selectedFirefighters = new List<UserOutputDto>();
+    private bool isLoadingFirefighters = true;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadInterventionTypes();
+        await LoadFirefighters();
     }
 
     private async Task LoadInterventionTypes()
@@ -68,6 +84,29 @@
         {
             Snackbar.Add("Došlo je do greške prilikom učitavanja tipova intervencija.", Severity.Error);
         }
+    }
+
+    private async Task LoadFirefighters()
+    {
+        try
+        {
+            isLoadingFirefighters = true;
+            allFirefighters = await StaffService.GetFirefightersAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add("Došlo je do greške prilikom učitavanja vatrogasaca.", Severity.Error);
+        }
+        finally
+        {
+            isLoadingFirefighters = false;
+        }
+    }
+
+    private void OnSelectedFirefightersChanged(List<UserOutputDto> updatedSelectedFirefighters)
+    {
+        selectedFirefighters = updatedSelectedFirefighters;
+        newIntervention.FirefighterIds = selectedFirefighters.Select(f => f.Id).ToList();
     }
 
     private async Task Submit()

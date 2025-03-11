@@ -14,9 +14,9 @@ namespace FireSync.Services.Interfaces
         Task<(IEnumerable<InterventionOutputDto> Interventions, PaginationMetadata Pagination)> GetAllInterventionsAsync(int pageNumber, int pageSize = 10);
 
         /// <summary>
-        /// Adds a new intervention.
+        /// Adds a new intervention with optional firefighter assignments.
         /// </summary>
-        /// <param name="intervention">The intervention input DTO.</param>
+        /// <param name="intervention">The intervention to add.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task AddInterventionAsync(InterventionInputDto intervention);
 

@@ -10,16 +10,22 @@ namespace FireSync.Services
     public class InterventionService : IInterventionService
     {
         private readonly IInterventionRepository _interventionRepository;
+        private readonly IApplicationUserInterventionRepository _applicationUserInterventionRepository;
         private readonly IMapper _mapper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InterventionService"/> class.
         /// </summary>
         /// <param name="interventionRepository">The intervention repository.</param>
+        /// <param name="applicationUserInterventionRepository">The user intervention repository.</param>
         /// <param name="mapper">The AutoMapper instance.</param>
-        public InterventionService(IInterventionRepository interventionRepository, IMapper mapper)
+        public InterventionService(
+            IInterventionRepository interventionRepository,
+            IApplicationUserInterventionRepository applicationUserInterventionRepository,
+            IMapper mapper)
         {
             _interventionRepository = interventionRepository;
+            _applicationUserInterventionRepository = applicationUserInterventionRepository;
             _mapper = mapper;
         }
 
@@ -37,7 +43,27 @@ namespace FireSync.Services
         {
             var entity = _mapper.Map<Intervention>(intervention);
 
+            // Add the intervention to get its ID
             await _interventionRepository.AddAsync(entity);
+
+            // Add firefighter assignments if any
+            if (intervention.FirefighterIds != null && intervention.FirefighterIds.Count > 0)
+            {
+                var userInterventions = new List<ApplicationUserIntervention>();
+
+                foreach (var firefighterId in intervention.FirefighterIds)
+                {
+                    var assignment = new ApplicationUserIntervention
+                    {
+                        InterventionId = entity.Id,
+                        ApplicationUserId = firefighterId.ToString()
+                    };
+
+                    userInterventions.Add(assignment);
+                }
+
+                await _applicationUserInterventionRepository.AddRangeAsync(userInterventions);
+            }
         }
 
         /// <inheritdoc />

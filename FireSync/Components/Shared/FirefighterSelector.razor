@@ -1,0 +1,149 @@
+﻿@using FireSync.DTOs
+@using FireSync.Services.Interfaces
+
+<MudText Typo="Typo.subtitle1">Vatrogasci</MudText>
+<MudPaper Elevation="0" Class="py-2">
+    <MudTextField T="string"
+                  Value="@searchText"
+                  TextChanged="@FilterFirefighters"
+                  Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Material.Filled.Search"
+                  FullWidth
+                  Immediate="true"
+                  Clearable="true"
+                  OnClearButtonClick="@(() => { searchText = string.Empty; FilterFirefighters(string.Empty); })" />
+</MudPaper>
+
+<MudPaper Elevation="0" Style="max-height: 200px; overflow-y: auto;" Class="mb-4">
+    @if (filteredFirefighters.Any())
+    {
+        <MudList T="UserOutputDto" Clickable="true">
+            @foreach (var firefighter in filteredFirefighters)
+            {
+                <MudListItem T="UserOutputDto"
+                             Icon="@Icons.Material.Filled.Person"
+                             OnClick="@(() => SelectFirefighter(firefighter))">
+                    @($"{firefighter.FirstName} {firefighter.LastName}")
+                </MudListItem>
+            }
+        </MudList>
+    }
+    else if (!string.IsNullOrWhiteSpace(searchText) && allFirefighters.Any())
+    {
+        <MudText Typo="Typo.body2" Class="pa-4">Nema rezultata za pretragu: "@searchText"</MudText>
+    }
+    else if (isLoadingFirefighters)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (!allFirefighters.Except(selectedFirefighters, new UserIdComparer()).Any())
+    {
+        <MudText Typo="Typo.body2" Class="pa-4">Svi dostupni vatrogasci su već odabrani.</MudText>
+    }
+    else
+    {
+        <MudText Typo="Typo.body2" Class="pa-4">Nema dostupnih vatrogasaca.</MudText>
+    }
+</MudPaper>
+
+<MudChipSet T="UserOutputDto" Class="mt-2">
+    @foreach (var firefighter in selectedFirefighters)
+    {
+        <MudChip T="UserOutputDto"
+                 Color="Color.Primary"
+                 OnClose="@(() => RemoveFirefighter(firefighter))"
+                 CloseIcon="@Icons.Material.Filled.Close">
+            @($"{firefighter.FirstName} {firefighter.LastName}")
+        </MudChip>
+    }
+</MudChipSet>
+@if (!selectedFirefighters.Any())
+{
+    <MudText Typo="Typo.body2" Class="mt-2">Nije odabran niti jedan vatrogasac.</MudText>
+}
+
+@code {
+    [Parameter]
+    public List<UserOutputDto> AvailableFirefighters { get; set; } = new List<UserOutputDto>();
+
+    [Parameter]
+    public List<UserOutputDto> SelectedFirefighters { get; set; } = new List<UserOutputDto>();
+
+    [Parameter]
+    public EventCallback<List<UserOutputDto>> SelectedFirefightersChanged { get; set; }
+
+    [Parameter]
+    public bool IsLoading { get; set; }
+
+    private List<UserOutputDto> allFirefighters => AvailableFirefighters;
+    private List<UserOutputDto> selectedFirefighters => SelectedFirefighters;
+    private List<UserOutputDto> filteredFirefighters = new List<UserOutputDto>();
+    private string searchText = string.Empty;
+    private bool isLoadingFirefighters => IsLoading;
+
+    protected override void OnParametersSet()
+    {
+        UpdateFilteredFirefighters();
+    }
+
+    private sealed class UserIdComparer : IEqualityComparer<UserOutputDto>
+    {
+        public bool Equals(UserOutputDto x, UserOutputDto y)
+        {
+            if (x == null && y == null) return true;
+            if (x == null || y == null) return false;
+            return x.Id == y.Id;
+        }
+
+        public int GetHashCode(UserOutputDto obj)
+        {
+            return obj.Id.GetHashCode();
+        }
+    }
+
+    private void UpdateFilteredFirefighters()
+    {
+        var availableFirefighters = allFirefighters
+            .Except(selectedFirefighters, new UserIdComparer())
+            .ToList();
+
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            filteredFirefighters = availableFirefighters;
+        }
+        else
+        {
+            filteredFirefighters = availableFirefighters
+                .Where(f =>
+                    f.FirstName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    f.LastName.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                    $"{f.FirstName} {f.LastName}".Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    private void FilterFirefighters(string value)
+    {
+        searchText = value;
+        UpdateFilteredFirefighters();
+        StateHasChanged();
+    }
+
+    private async Task SelectFirefighter(UserOutputDto firefighter)
+    {
+        var updatedSelectedList = new List<UserOutputDto>(selectedFirefighters) { firefighter };
+        await SelectedFirefightersChanged.InvokeAsync(updatedSelectedList);
+
+        searchText = string.Empty;
+        UpdateFilteredFirefighters();
+    }
+
+    private async Task RemoveFirefighter(UserOutputDto firefighter)
+    {
+        var updatedSelectedList = new List<UserOutputDto>(selectedFirefighters);
+        updatedSelectedList.RemoveAll(f => f.Id == firefighter.Id);
+
+        await SelectedFirefightersChanged.InvokeAsync(updatedSelectedList);
+        UpdateFilteredFirefighters();
+    }
+}
