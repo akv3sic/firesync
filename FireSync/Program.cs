@@ -119,7 +119,7 @@ namespace FireSync
                 // Apply any pending migrations
                 try
                 {
-                    dbContext.Database.Migrate();
+                    await dbContext.Database.MigrateAsync();
                 }
                 catch (Exception ex)
                 {
