@@ -8,6 +8,7 @@
 @inject NavigationManager NavigationManager
 
 @using FireSync.Components.Shared
+@using FireSync.Constants
 @using FireSync.DTOs.Interventions
 @using FireSync.Enums
 @using FireSync.Services.Interfaces
@@ -50,7 +51,23 @@
                             <PropertyColumn Property="x => x.Title" Title="Naslov" />
                             <PropertyColumn Property="x => x.Description" Title="Opis" />
                             <PropertyColumn Property="x => x.InterventionTypeName" Title="Tip intervencije" />
-                            <PropertyColumn Property="x => x.StartTime" Title="Početno vrijeme" />
+                            <TemplateColumn Title="Vremenski okvir">
+                                <CellTemplate Context="cellContext">
+                                    @{
+                                        var item = cellContext.Item;
+                                        var formattedStartTime = DateTime.MinValue.Equals(item.StartTime)
+                                        ? GlobalConstants.NotApplicable
+                                        : item.StartTime.ToString("dd.MM.yyyy HH:mm");
+
+                                        string formattedEndTime = item.EndTime.HasValue && !DateTime.MinValue.Equals(item.EndTime.Value)
+                                        ? item.EndTime.Value.ToString("dd.MM.yyyy HH:mm")
+                                        : GlobalConstants.NotApplicable;
+
+                                        var formattedTimeRange = $"{formattedStartTime} - {formattedEndTime}";
+                                    }
+                                    @formattedTimeRange
+                                </CellTemplate>
+                            </TemplateColumn>
                         </Columns>
                     </MudDataGrid>
 
