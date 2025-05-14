@@ -1,0 +1,97 @@
+﻿@page "/interventions/{id:guid}"
+
+@attribute [Authorize]
+@attribute [StreamRendering]
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@using FireSync.Constants
+@using FireSync.DTOs.Interventions
+@using FireSync.DTOs.Users
+@using FireSync.Services.Interfaces
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+@inject IInterventionService InterventionService
+@inject NavigationManager NavigationManager
+@inject ILogger<InterventionDetails> Logger
+
+<PageTitle>Intervention @intervention?.Title</PageTitle>
+
+@if (!isInitialLoading && intervention == null)
+{
+    <NotFound />
+}
+else if (!isInitialLoading)
+{
+    <MudGrid>
+        <MudItem xs="12" sm="12" md="10" lg="8" xl="6">
+            @* ───────────  Header & basic info ─────────── *@
+            <div class="mb-4">
+                <MudText Typo="Typo.h5">@intervention!.Title</MudText>
+
+                <MudText Typo="Typo.subtitle2" Class="mt-2">Opis</MudText>
+                <MudText Typo="Typo.body1">
+                    @(string.IsNullOrWhiteSpace(intervention?.Description)
+                        ? GlobalConstants.NotApplicable
+                        : intervention.Description)
+                </MudText>
+
+                <MudText Typo="Typo.subtitle2" Class="mt-2">Tip</MudText>
+                <MudText Typo="Typo.body1">
+                    @(string.IsNullOrWhiteSpace(intervention?.InterventionTypeName)
+                        ? GlobalConstants.NotApplicable
+                        : intervention.InterventionTypeName)
+                </MudText>
+
+                <MudText Typo="Typo.subtitle2" Class="mt-2">Vremenski okvir</MudText>
+                @{
+                    var start = intervention!.StartTime?.ToString("dd.MM.yyyy HH:mm") ?? GlobalConstants.NotApplicable;
+                    var end = intervention!.EndTime?.ToString("dd.MM.yyyy HH:mm") ?? GlobalConstants.NotApplicable;
+                }
+                <MudText Typo="Typo.body1">@($"{start} - {end}")</MudText>
+            </div>
+
+            <hr class="section-divider" />
+
+            @* ───────────  Firefighters list ─────────── *@
+            <div>
+                <label class="mb-2 section-label1">Vatrogasci</label>
+
+                @if (intervention!.Firefighters.Any())
+                {
+                    @foreach (var ff in intervention!.Firefighters)
+                    {
+                        <MudText Typo="Typo.body1" Class="mb-1">@ff.FullName</MudText>
+                    }
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2">Nema vatrogasaca koji su dodijeljeni ovoj intervenciji.</MudText>
+                }
+            </div>
+        </MudItem>
+    </MudGrid>
+}
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private InterventionDetailsOutputDto? intervention;
+    private bool isInitialLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            intervention = await InterventionService.GetInterventionDetailsAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to load intervention details");
+            NavigationManager.NavigateTo("/500");   // fallback to error page
+        }
+        finally
+        {
+            isInitialLoading = false;
+        }
+    }
+}
