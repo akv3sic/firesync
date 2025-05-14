@@ -25,6 +25,17 @@ namespace FireSync.MappingProfiles
             CreateMap<Vehicle, VehicleOutputDto>();
             CreateMap<VehicleInputDto, Vehicle>();
             CreateMap<UserInputDto, ApplicationUser>();
+            CreateMap<ApplicationUser, UserBriefOutputDto>()
+                .ForMember(d => d.FullName,
+                           opt => opt.MapFrom(s => $"{s.FirstName} {s.LastName}".Trim()));
+
+            CreateMap<Intervention, InterventionDetailsOutputDto>()
+                .ForMember(d => d.InterventionTypeName,
+                           opt => opt.MapFrom(s => s.InterventionType != null ? s.InterventionType.Name : string.Empty))
+                .ForMember(d => d.Firefighters,
+                           opt => opt.MapFrom(s => s.ApplicationUserInterventions
+                                                      .Select(aui => aui.ApplicationUser)));
+
         }
     }
 }

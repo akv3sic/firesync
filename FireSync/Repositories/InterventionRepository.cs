@@ -55,5 +55,17 @@ namespace FireSync.Repositories
                 await context.SaveChangesAsync();
             }
         }
+
+        /// <inheritdoc />
+        public async Task<Intervention?> GetByIdWithFirefightersAsync(Guid interventionId)
+        {
+            using var context = _contextFactory.CreateDbContext();
+
+            return await context.Interventions
+                .Include(i => i.InterventionType)
+                .Include(i => i.ApplicationUserInterventions)
+                    .ThenInclude(aui => aui.ApplicationUser)
+                .FirstOrDefaultAsync(i => i.Id == interventionId);
+        }
     }
 }

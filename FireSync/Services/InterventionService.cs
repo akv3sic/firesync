@@ -71,5 +71,12 @@ namespace FireSync.Services
         {
             await _interventionRepository.DeleteAsync(interventionId);
         }
+
+        /// <inheritdoc />
+        public async Task<InterventionDetailsOutputDto?> GetInterventionDetailsAsync(Guid interventionId)
+        {
+            var entity = await _interventionRepository.GetByIdWithFirefightersAsync(interventionId);
+            return entity is null ? null : _mapper.Map<InterventionDetailsOutputDto>(entity);
+        }
     }
 }

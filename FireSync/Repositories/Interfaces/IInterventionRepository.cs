@@ -25,5 +25,10 @@ namespace FireSync.Repositories.Interfaces
         /// <param name="interventionId">The ID of the intervention to delete.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         Task DeleteAsync(Guid interventionId);
+
+        /// <summary>
+        /// Retrieves an intervention by its ID, including its associated firefighters.
+        /// </summary>
+        Task<Intervention?> GetByIdWithFirefightersAsync(Guid interventionId);
     }
 }
