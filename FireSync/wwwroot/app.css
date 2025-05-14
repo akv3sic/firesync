@@ -200,7 +200,15 @@
     transition: color 0.3s ease, text-decoration 0.3s ease;
 }
 
-    .table-cell-link:hover {
-        color: var(--mud-palette-primary-dark);
-        font-weight: 500;
-    }
+.table-cell-link:hover {
+    color: var(--mud-palette-primary-dark);
+    font-weight: 500;
+}
+
+.logo-icon {
+    width: 30px;
+    height: 30px;
+    margin-right: 2px;
+    display: inline-block;
+    vertical-align: middle;
+}
